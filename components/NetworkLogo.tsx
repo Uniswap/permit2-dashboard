@@ -1,3 +1,4 @@
+import { ChainId, useAccount } from '@/utils'
 import styled from '@emotion/styled'
 import { goerli, useNetwork } from 'wagmi'
 
@@ -16,10 +17,15 @@ const CHAIN_ID_TO_COLORS: { [id: string]: { background: string; text: string } }
   },
 }
 
+const chainToName = {
+  [ChainId.Mainnet]: 'Ethereum',
+  [ChainId.Goerli]: 'Goerli',
+}
+
 export default function NetworkLogo() {
-  const chainInfo = useNetwork().chain ?? goerli
-  const colors = CHAIN_ID_TO_COLORS[String(chainInfo.id)]
-  return <Container style={{ backgroundColor: colors?.background, color: colors?.text }}>{chainInfo.name}</Container>
+  const { chain } = useAccount()
+  const colors = chain ? CHAIN_ID_TO_COLORS[String(chain.id)] : null
+  return <Container style={{ backgroundColor: colors?.background, color: colors?.text }}>{chain?.name}</Container>
 }
 
 const Container = styled.div`
