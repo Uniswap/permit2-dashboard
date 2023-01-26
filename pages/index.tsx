@@ -42,7 +42,7 @@ const tokenBalancesGql = gql`
   }
 `
 
-function useTokenBalances() {
+export function useTokenBalances() {
   const { address, chain } = useAccount()
   const { data } = useQuery(tokenBalancesGql, { variables: { ownerAddress: address }, skip: !address })
 
@@ -167,7 +167,7 @@ const CardButton = styled.button`
   }
 `
 
-const WhiteDot = styled.div`
+export const WhiteDot = styled.div`
   border-radius: 50%;
   width: 80px;
   height: 80px;
