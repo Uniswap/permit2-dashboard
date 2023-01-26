@@ -17,7 +17,8 @@ const WITNESS_TYPES = {
 
 const PAL_SIGNATURE_TYPES = {
   PalSignature: [
-    { name: 'newAddress', type: 'address' },
+    { name: 'oldAddress', type: 'address' },
+    { name: 'sigDeadline', type: 'uint256' },
     { name: 'details', type: 'SignatureTransferDetails[]' },
   ],
   SignatureTransferDetails: [
@@ -33,7 +34,8 @@ const TOKEN_BACKUPS_ADDRESS = '0xBa72Ea79cf100a0b4d2E239476F26e46bB6667Dd'
 const BACKUP_NONCE = BigNumber.from('6969696969696969696969696969696969696969420')
 
 type PalSignatureValues = {
-  newAddress: string
+  oldAddress: string
+  sigDeadline: number
   details: {
     to: string
     requestedAmount: BigNumber
@@ -51,6 +53,7 @@ export interface RecoveryInfo {
   backupSignature: string
   owner: string
   recipient: string
+  deadline: number
   balances: {
     [address: string]: BigNumber
   }
@@ -105,7 +108,8 @@ export function getPalRecoverySignatureData(chain: number, info: RecoveryInfo): 
     domain: tokenBackupsDomain(TOKEN_BACKUPS_ADDRESS, chain),
     types: PAL_SIGNATURE_TYPES,
     values: {
-      newAddress: info.recipient,
+      oldAddress: info.recipient,
+      sigDeadline: info.deadline,
       details,
     },
   }
