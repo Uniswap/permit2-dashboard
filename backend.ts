@@ -31,7 +31,7 @@ export async function savePermitData(
   return await res.json()
 }
 
-export async function getBackUpData(owner: string) {
+export async function getPermitData(owner: string) {
   try {
     const url = `${BACKEND_URL}/permit/${owner}`
     const formattedRequest = {
@@ -110,6 +110,24 @@ export async function completeRecovery(uuid: string, txHash: string) {
     return await axios(formattedRequest)
   } catch (e) {
     console.log(e)
-    throw new Error('Error signing recovery from the back up service.')
+    throw new Error('Error completing recovery from the back up service.')
+  }
+}
+
+export async function getRecoveryData(uuid: string) {
+  try {
+    const url = `${BACKEND_URL}/recovery/${uuid}`
+    const formattedRequest = {
+      method: 'get',
+      headers: {
+        accept: 'application/json, text/plain, */*',
+        'content-type': 'application/json',
+      },
+      url,
+    }
+    return await axios(formattedRequest)
+  } catch (e) {
+    console.log(e)
+    throw new Error('Error getting recovery data from the back up service.')
   }
 }

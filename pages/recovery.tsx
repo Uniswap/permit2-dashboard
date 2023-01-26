@@ -7,7 +7,7 @@ import Icon from '../public/icon.png'
 
 import { useAccount } from '@/utils'
 import { formatNumber } from '@/format'
-import { getBackUpData } from '@/backend'
+import { getPermitData } from '@/backend'
 
 const RecoveryContainer = styled.div`
   width: 100%;
@@ -136,7 +136,6 @@ function LeftStack({ backedUpBalance, backedUpTokenCount }: { backedUpBalance: n
           color: colors.blue400,
           cursor: 'pointer',
         }}
-        onClick={() => console.log('recovery')}
       >
         Start a recovery
       </div>
@@ -166,7 +165,7 @@ export default function Recovery() {
   useEffect(() => {
     async function getData() {
       if (address && tokenBalances) {
-        const backupData = await getBackUpData(address)
+        const backupData = await getPermitData(address)
         const permitData = backupData.data.permits[0]
         setBackupData(permitData)
         const backedUpTokens = permitData.tokens.map((token: string) => token.toLowerCase())
