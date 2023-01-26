@@ -13,7 +13,9 @@ function getApprovedValue(approved: string[], tokenBalances: any) {
 
   let sum = 0
   for (var i = 0; i < tokenBalances.length; i++) {
-    sum += tokenBalances[i].denominatedValue.value
+    if (approved.includes(tokenBalances[i].token.address)) {
+      sum += tokenBalances[i].denominatedValue.value
+    }
   }
 
   return sum
