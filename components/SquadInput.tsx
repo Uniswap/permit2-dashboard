@@ -3,7 +3,7 @@ import { getBackupPermitData } from '@/backups'
 import { BackupState } from '@/types'
 import { resolveENS, useAccount } from '@/utils'
 import styled from '@emotion/styled'
-import { constants, Signer } from 'ethers'
+import { BigNumber, constants, Signer } from 'ethers'
 import { useState } from 'react'
 import { useNetwork, useProvider, useSigner, useSignTypedData } from 'wagmi'
 import { Back } from './Back'
@@ -42,7 +42,7 @@ export function SquadInput({
     const permitData = getBackupPermitData(chain.id, {
       pals: backup.squad,
       tokens: backup.tokens,
-      threshold: constants.MaxUint256,
+      threshold: BigNumber.from(2),
     })
 
     // some type of error handling here
@@ -68,7 +68,7 @@ export function SquadInput({
     }
     setSigning(false)
 
-    
+
   }
 
   return (
