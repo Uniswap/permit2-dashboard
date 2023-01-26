@@ -4,6 +4,7 @@ const nextConfig = {
   images: {
     domains: ['https:/token-icons.s3.amazonaws.com'],
   },
+  swcMinify: false,
 }
 
 module.exports = nextConfig
