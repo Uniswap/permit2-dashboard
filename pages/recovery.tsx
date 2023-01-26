@@ -132,7 +132,7 @@ function LeftStack({ backedUpBalance, backedUpTokenCount }: { backedUpBalance: n
           padding: '10px',
           alignItems: 'center',
           fontSize: '44px',
-          color: colors.blue,
+          color: colors.blue400,
           cursor: 'pointer',
         }}
         onClick={() => console.log('recovery')}
@@ -144,7 +144,7 @@ function LeftStack({ backedUpBalance, backedUpTokenCount }: { backedUpBalance: n
           padding: '10px',
           alignItems: 'center',
           fontSize: '22px',
-          color: colors.blue,
+          color: colors.blue400,
           opacity: 0.4,
         }}
       >

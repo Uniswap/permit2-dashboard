@@ -7,8 +7,9 @@ import { useProvider, useSigner } from 'wagmi'
 import { StepTitle } from './StepTitle'
 import { constants } from 'ethers'
 import { useState } from 'react'
+import { Back } from './Back'
 
-function getApprovedValue(approved: string[], tokenBalances: any) {
+export function getApprovedValue(approved: string[], tokenBalances: any) {
   if (!tokenBalances) return 0
 
   let sum = 0
@@ -29,20 +30,31 @@ export function TokenSelector({
   setStep,
 }: {
   backup: BackupState
-  setBackup: (newState: BackupState) => void
+  setBackup: any
   tokenBalances: any
   permit2Approvals: { approved: string[]; loading: boolean; refetch: () => void }
   setStep: (step: number) => void
 }) {
   const approvedValue = getApprovedValue(permit2Approvals.approved, tokenBalances)
+
+  const onContinue = () => {
+    setBackup((prev: BackupState) => ({
+      ...prev,
+      tokens: permit2Approvals.approved,
+    }))
+
+    setStep(2)
+  }
+
   return (
     <Container>
+      <Back setStep={setStep} />
       <StepTitle
         index={1}
         title={`Allow tokens to be backed up (Total value: ${formatNumber(approvedValue, NumberType.FiatTokenPrice)})`}
       />
       <Tokens tokenBalances={tokenBalances} permit2Approvals={permit2Approvals} />
-      <button onClick={() => setStep(2)} disabled={!tokenBalances?.length}>
+      <button onClick={onContinue} disabled={!tokenBalances?.length}>
         Continue
       </button>
     </Container>

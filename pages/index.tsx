@@ -1,12 +1,16 @@
-import { TokenSelector } from '@/components/TokenSelector'
-import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
-import { colors } from '@/styles/colors'
-import { BackupState } from '@/types'
 import { EMPTY_ARRAY, fromGraphQLChain, isNativeCurrencyAddress, useAccount } from '@/utils'
-import { gql, useQuery } from '@apollo/client'
 import styled from '@emotion/styled'
+import { gql, useQuery } from '@apollo/client'
+import { colors } from '@/styles/colors'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { BackupState } from '@/types'
+import { TokenSelector } from '@/components/TokenSelector'
 import { useProvider } from 'wagmi'
+import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
+import { SquadInput } from '@/components/SquadInput'
+import { SetupComplete } from '@/components/SetupComplete'
+import { useModal } from 'connectkit'
+import randomWords from 'random-words'
 
 const tokenBalancesGql = gql`
   query PortfolioBalances($ownerAddress: String!) {
@@ -150,29 +154,58 @@ export const WhiteDot = styled.div`
   background-color: white;
 `
 
-function StartCard({ setStep }: { setStep: (step: number) => void }) {
+function StartCard({ setStep, setBackup }: { setStep: (step: number) => void; setBackup: any }) {
+  const { isConnected } = useAccount()
+  const { setOpen } = useModal()
+  const handleClick = () => {
+    if (!isConnected) {
+      setOpen(true)
+      return
+    }
+
+    const identifier = randomWords({ exactly: 5, wordsPerString: 2, separator: '-' })[0]
+    setBackup((backup: BackupState) => ({
+      ...backup,
+      identifier,
+    }))
+
+    setStep(1)
+  }
   return (
-    <CardButton onClick={() => setStep(1)}>
+    <CardButton onClick={handleClick}>
       <WhiteDot />
       <div>Make a backup</div>
     </CardButton>
   )
 }
 
-function InProgressCard() {
+function InProgressCard({ identifier }: { identifier: string }) {
   return (
     <Card>
       <WhiteDot />
-      <div style={{ color: colors.gray100 }}>random-words</div>
+      <div style={{ color: colors.gray100, display: 'flex', flexFlow: 'column' }}>
+        <div style={{ fontSize: '14px', lineHeight: '16px' }}>Your backup identifier</div>
+        <div>{identifier}</div>
+      </div>
     </Card>
   )
 }
 
-function RightStack({ step, setStep }: { step: number; setStep: (step: number) => void }) {
+function RightStack({
+  step,
+  setStep,
+  backup,
+  setBackup,
+}: {
+  step: number
+  setStep: (step: number) => void
+  backup: BackupState
+  setBackup: any
+}) {
   return (
     <RightStackContainer>
-      {step === 0 && <StartCard setStep={setStep} />}
-      {step >= 1 && <InProgressCard />}
+      {step === 0 && <StartCard setBackup={setBackup} setStep={setStep} />}
+      {step >= 1 && backup.identifier && <InProgressCard identifier={backup.identifier} />}
     </RightStackContainer>
   )
 }
@@ -210,7 +243,11 @@ function LeftStack({
   }
 
   if (step === 2) {
-    return <div>Select squad here. wip!</div>
+    return <SquadInput backup={backup} setBackup={setBackup} setStep={setStep} />
+  }
+
+  if (step === 3) {
+    return <SetupComplete tokenBalances={tokenBalances} backup={backup} />
   }
 
   return <div />
@@ -220,6 +257,7 @@ const initialBackupState: BackupState = {
   squad: [],
   tokens: [],
   signature: null,
+  identifier: null,
 }
 
 // Get a list of token addresses that have a non-zero allowance on Permit2
@@ -273,7 +311,7 @@ export default function Home() {
         tokenBalances={tokenBalances}
         permit2Approvals={permit2Approvals}
       />
-      <RightStack step={step} setStep={setStep} />
+      <RightStack step={step} setStep={setStep} backup={backup} setBackup={setBackup} />
     </HomeContainer>
   )
 }

@@ -39,7 +39,7 @@ const httpLink = createHttpLink({
   headers: {
     'Content-Type': 'application/json',
     'X-API-KEY': process.env.NEXT_PUBLIC_UNISWAP_API_KEY,
-    Origin: 'https://api.uniswap.org',
+    origin: 'https://api.uniswap.org',
   },
 })
 
