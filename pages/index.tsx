@@ -1,12 +1,12 @@
-import { ChainId, EMPTY_ARRAY, fromGraphQLChain, isNativeCurrencyAddress, useAccount } from '@/utils'
-import styled from '@emotion/styled'
-import { gql, useQuery } from '@apollo/client'
-import { colors } from '@/styles/colors'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BackupState } from '@/types'
 import { TokenSelector } from '@/components/TokenSelector'
-import { useProvider, useToken } from 'wagmi'
 import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
+import { colors } from '@/styles/colors'
+import { BackupState } from '@/types'
+import { EMPTY_ARRAY, fromGraphQLChain, isNativeCurrencyAddress, useAccount } from '@/utils'
+import { gql, useQuery } from '@apollo/client'
+import styled from '@emotion/styled'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useProvider } from 'wagmi'
 
 const tokenBalancesGql = gql`
   query PortfolioBalances($ownerAddress: String!) {
@@ -38,7 +38,7 @@ const tokenBalancesGql = gql`
   }
 `
 
-function useTokenBalances() {
+export function useTokenBalances() {
   const { address, chain } = useAccount()
   const { data } = useQuery(tokenBalancesGql, { variables: { ownerAddress: address }, skip: !address })
 
@@ -143,7 +143,7 @@ const CardButton = styled.button`
   }
 `
 
-const WhiteDot = styled.div`
+export const WhiteDot = styled.div`
   border-radius: 50%;
   width: 80px;
   height: 80px;
