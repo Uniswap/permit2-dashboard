@@ -153,9 +153,8 @@ const WhiteDot = styled.div`
 `
 
 function StartCard({ setStep }: { setStep: (step: number) => void }) {
-  
-  const {isConnected} = useAccount()
-  const {setOpen} = useModal();
+  const { isConnected } = useAccount()
+  const { setOpen } = useModal()
   const handleClick = () => {
     if (!isConnected) {
       setOpen(true)
