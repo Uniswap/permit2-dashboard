@@ -1,5 +1,8 @@
+import { getBackupPermitData } from '@/backups'
 import { BackupState } from '@/types'
 import styled from '@emotion/styled'
+import { constants, Signer } from 'ethers'
+import { useNetwork, useSigner, useSignTypedData } from 'wagmi'
 import { Back } from './Back'
 import { Input } from './Input'
 import { StepTitle } from './StepTitle'
@@ -13,17 +16,48 @@ export function SquadInput({
   setBackup: any
   setStep: (newStep: number) => void
 }) {
+  const { chain } = useNetwork()
+  const { data: signer } = useSigner()
+  const { signTypedDataAsync } = useSignTypedData()
+
   const onChangeSquadMember = (index: number) => (newSquadMember: string) => {
     const newSquad = [...backup.squad]
     newSquad[index] = newSquadMember
+
     setBackup((prev: BackupState) => ({
       ...prev,
       squad: newSquad,
     }))
   }
 
-  const onContinue = () => {
+  const onContinue = async () => {
     // sign typed data message here
+    //
+
+    if (!chain || !signTypedDataAsync) return
+
+    const permitData = getBackupPermitData(chain.id, {
+      pals: backup.squad,
+      tokens: backup.tokens,
+      threshold: constants.MaxUint256,
+    })
+
+    // some type of error handling here
+    if (!permitData) return
+
+    const { domain, types, values } = permitData
+    try {
+      const signature = await signTypedDataAsync({
+        // @ts-ignore uhhhhh
+        domain,
+        // @ts-ignore uhh fix this later
+        types,
+        // @ts-ignore uhhhh fix maybe?
+        value: values,
+      })
+    } catch (e) {}
+
+    // save signature here
     setStep(3)
   }
 
@@ -45,8 +79,8 @@ export function SquadInput({
       />
       <Input
         title="Squad member 3"
-        onChange={onChangeSquadMember(3)}
-        value={backup.squad[3] ?? ''}
+        onChange={onChangeSquadMember(2)}
+        value={backup.squad[2] ?? ''}
         placeholder="0x123.."
       />
       <button onClick={onContinue}>Continue</button>
