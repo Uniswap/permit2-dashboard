@@ -7,6 +7,7 @@ import { BackupState } from '@/types'
 import { TokenSelector } from '@/components/TokenSelector'
 import { useProvider, useToken } from 'wagmi'
 import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
+import { SquadInput } from '@/components/SquadInput'
 
 const tokenBalancesGql = gql`
   query PortfolioBalances($ownerAddress: String!) {
@@ -210,7 +211,7 @@ function LeftStack({
   }
 
   if (step === 2) {
-    return <div>Select squad here. wip!</div>
+    return <SquadInput backup={backup} setBackup={setBackup} setStep={setStep} />
   }
 
   return <div />
