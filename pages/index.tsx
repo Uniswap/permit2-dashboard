@@ -5,10 +5,11 @@ import { colors } from '@/styles/colors'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BackupState } from '@/types'
 import { TokenSelector } from '@/components/TokenSelector'
-import { useProvider, useToken } from 'wagmi'
+import { useProvider } from 'wagmi'
 import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
 import { SquadInput } from '@/components/SquadInput'
 import { SetupComplete } from '@/components/SetupComplete'
+import { useModal } from 'connectkit'
 
 const tokenBalancesGql = gql`
   query PortfolioBalances($ownerAddress: String!) {
@@ -153,8 +154,17 @@ const WhiteDot = styled.div`
 `
 
 function StartCard({ setStep }: { setStep: (step: number) => void }) {
+  const { isConnected } = useAccount()
+  const { setOpen } = useModal()
+  const handleClick = () => {
+    if (!isConnected) {
+      setOpen(true)
+      return
+    }
+    setStep(1)
+  }
   return (
-    <CardButton onClick={() => setStep(1)}>
+    <CardButton onClick={handleClick}>
       <WhiteDot />
       <div>Make a backup</div>
     </CardButton>
