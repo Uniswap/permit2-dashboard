@@ -1,7 +1,7 @@
 import { Provider } from '@wagmi/core'
 import { Contract, Signer } from 'ethers'
 import { Erc20 } from './abi/erc20'
-import Erc20ABI from '@/abi/Erc20.json'
+import Erc20ABI from '@/abi/erc20.json'
 
 export function getTokenContract(address: string, provider: Provider | Signer): Erc20 {
   return new Contract(address, Erc20ABI, provider) as Erc20
