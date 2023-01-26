@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react'
 import { useTokenBalances } from '.'
 import Link from 'next/link'
 import Icon from '../public/icon.png'
-import { getBackUpData } from './api/hello'
+
 import { useAccount } from '@/utils'
 import { formatNumber } from '@/format'
+import { getBackUpData } from '@/backend'
 
 const RecoveryContainer = styled.div`
   width: 100%;
