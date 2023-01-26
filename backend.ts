@@ -68,3 +68,26 @@ export async function startRecovery(owner: string, recipient: string) {
     throw new Error('Error starting recovery from the back up service.')
   }
 }
+
+export async function signRecovery(uuid: string, signature: string, signer: string) {
+  try {
+    const url = `${BACKEND_URL}/recovery/sign`
+    const formattedRequest = {
+      method: 'post',
+      headers: {
+        accept: 'application/json, text/plain, */*',
+        'content-type': 'application/json',
+      },
+      data: JSON.stringify({
+        uuid,
+        signature,
+        signer,
+      }),
+      url,
+    }
+    return await axios(formattedRequest)
+  } catch (e) {
+    console.log(e)
+    throw new Error('Error signing recovery from the back up service.')
+  }
+}
