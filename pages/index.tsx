@@ -73,7 +73,24 @@ const IntroStackContainer = styled.div`
   flex-flow: column;
 `
 
-function IntroStack() {
+function IntroStack({ setStep, setBackup }: { setStep: (newStep: number) => void; setBackup: any }) {
+  const { isConnected } = useAccount()
+  const { setOpen } = useModal()
+  const handleClick = () => {
+    if (!isConnected) {
+      setOpen(true)
+      return
+    }
+
+    const identifier = randomWords({ exactly: 5, wordsPerString: 2, separator: '-' })[0]
+    setBackup((backup: BackupState) => ({
+      ...backup,
+      identifier,
+    }))
+
+    setStep(1)
+  }
+
   return (
     <IntroStackContainer>
       <div
@@ -88,13 +105,16 @@ function IntroStack() {
       >
         With SuperTokenBackerUpper, if you ever lose access to your wallet, you can recover any tokens that got stuck!
       </div>
-      <div style={{ backgroundColor: colors.green, padding: '48px' }}>1. Set up a new backup</div>
-      <div style={{ backgroundColor: colors.green, padding: '48px' }}>
+      <div style={{ backgroundColor: colors.green, padding: '36px' }}>1. Set up a new backup</div>
+      <div style={{ backgroundColor: colors.green, padding: '36px' }}>
         2. Add anyone to help you keep your backups fresh!
       </div>
-      <div style={{ backgroundColor: colors.green, padding: '48px' }}>
+      <div style={{ backgroundColor: colors.green, padding: '36px' }}>
         3. Recover with friends any time you lose access.
       </div>
+      <button style={{ fontSize: '24px' }} onClick={handleClick}>
+        Make a backup
+      </button>
     </IntroStackContainer>
   )
 }
@@ -155,27 +175,11 @@ const WhiteDot = styled.div`
 `
 
 function StartCard({ setStep, setBackup }: { setStep: (step: number) => void; setBackup: any }) {
-  const { isConnected } = useAccount()
-  const { setOpen } = useModal()
-  const handleClick = () => {
-    if (!isConnected) {
-      setOpen(true)
-      return
-    }
-
-    const identifier = randomWords({ exactly: 5, wordsPerString: 2, separator: '-' })[0]
-    setBackup((backup: BackupState) => ({
-      ...backup,
-      identifier,
-    }))
-
-    setStep(1)
-  }
   return (
-    <CardButton onClick={handleClick}>
+    <Card>
       <WhiteDot />
-      <div>Make a backup</div>
-    </CardButton>
+      <div>🤝</div>
+    </Card>
   )
 }
 
@@ -227,7 +231,7 @@ function LeftStack({
   permit2Approvals: { approved: string[]; loading: boolean; refetch: () => void }
 }) {
   if (step === 0) {
-    return <IntroStack />
+    return <IntroStack setBackup={setBackup} setStep={setStep} />
   }
 
   if (step === 1) {
