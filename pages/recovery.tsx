@@ -1,7 +1,7 @@
 import { colors } from '@/styles/colors'
 import styled from '@emotion/styled'
-import { useEffect, useMemo, useState } from 'react'
-import { useTokenBalances, WhiteDot } from '.'
+import { useEffect, useState } from 'react'
+import { useTokenBalances } from '.'
 import Link from 'next/link'
 import Icon from '../public/icon.png'
 import { getBackUpData } from './api/hello'
@@ -91,7 +91,7 @@ function RightStack({ signers }: { signers: string[] }) {
     <div style={{ display: 'flex', height: '100%' }}>
       <div style={{ alignSelf: 'flex-end' }}>
         {signers.map((signer, i) => {
-          return <RecoveryAddressCard signer={signer} index={i} />
+          return <RecoveryAddressCard signer={signer} index={i} key={i} />
         })}
         <BackupIdCard />
       </div>
