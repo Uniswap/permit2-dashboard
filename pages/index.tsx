@@ -174,7 +174,7 @@ const WhiteDot = styled.div`
   background-color: white;
 `
 
-function StartCard({ setStep, setBackup }: { setStep: (step: number) => void; setBackup: any }) {
+function StartCard() {
   return (
     <Card>
       <WhiteDot />
@@ -208,7 +208,7 @@ function RightStack({
 }) {
   return (
     <RightStackContainer>
-      {step === 0 && <StartCard setBackup={setBackup} setStep={setStep} />}
+      {step === 0 && <StartCard />}
       {step >= 1 && backup.identifier && <InProgressCard identifier={backup.identifier} />}
     </RightStackContainer>
   )
