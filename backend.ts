@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BACKEND_URL = 'https://s9330mb9zg.execute-api.us-west-2.amazonaws.com/prod/token-backup'
+const BACKEND_URL = 'https://g4fzh009re.execute-api.us-west-2.amazonaws.com/prod/token-backup'
 
 export async function savePermitData(
   permitSignature: string,
