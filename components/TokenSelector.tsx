@@ -24,11 +24,13 @@ export function TokenSelector({
   setBackup,
   tokenBalances,
   permit2Approvals,
+  setStep,
 }: {
   backup: BackupState
   setBackup: (newState: BackupState) => void
   tokenBalances: any
   permit2Approvals: { approved: string[]; loading: boolean; refetch: () => void }
+  setStep: (step: number) => void
 }) {
   const approvedValue = getApprovedValue(permit2Approvals.approved, tokenBalances)
   return (
@@ -38,7 +40,9 @@ export function TokenSelector({
         title={`Allow tokens to be backed up (Total value: ${formatNumber(approvedValue, NumberType.FiatTokenPrice)})`}
       />
       <Tokens tokenBalances={tokenBalances} permit2Approvals={permit2Approvals} />
-      <button disabled={!tokenBalances?.length}>Continue</button>
+      <button onClick={() => setStep(2)} disabled={!tokenBalances?.length}>
+        Continue
+      </button>
     </Container>
   )
 }

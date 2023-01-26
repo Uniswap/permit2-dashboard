@@ -172,19 +172,21 @@ function RightStack({ step, setStep }: { step: number; setStep: (step: number) =
   return (
     <RightStackContainer>
       {step === 0 && <StartCard setStep={setStep} />}
-      {step === 1 && <InProgressCard />}
+      {step >= 1 && <InProgressCard />}
     </RightStackContainer>
   )
 }
 
 function LeftStack({
   step,
+  setStep,
   backup,
   setBackup,
   tokenBalances,
   permit2Approvals,
 }: {
   step: number
+  setStep: (step: number) => void
   backup: BackupState
   setBackup: (newState: BackupState) => void
   // TODO: type this lol
@@ -202,8 +204,13 @@ function LeftStack({
         tokenBalances={tokenBalances}
         backup={backup}
         setBackup={setBackup}
+        setStep={setStep}
       />
     )
+  }
+
+  if (step === 2) {
+    return <div>Select squad here. wip!</div>
   }
 
   return <div />
@@ -260,6 +267,7 @@ export default function Home() {
     <HomeContainer>
       <LeftStack
         step={step}
+        setStep={setStep}
         backup={backup}
         setBackup={setBackup}
         tokenBalances={tokenBalances}
