@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BACKEND_URL = 'https://s9330mb9zg.execute-api.us-west-2.amazonaws.com/prod/token-backup'
+const BACKEND_URL = 'https://g4fzh009re.execute-api.us-west-2.amazonaws.com/prod/token-backup'
 
 export async function savePermitData(
   permitSignature: string,
@@ -8,27 +8,34 @@ export async function savePermitData(
   squad: string[],
   owner: string,
   chainId: number,
-  tokens: string[]
+  tokens: string[],
+  backupId: string
 ) {
-  const res = await fetch(`${BACKEND_URL}/permit`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      permit: permitSignature,
-      recoveryAddresses: squad,
-      owner,
-      recoveryScheme: {
-        m: 2,
-        n: 3,
+  try {
+    const res = await fetch(`${BACKEND_URL}/permit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      chainId,
-      tokens,
-    }),
-  })
+      body: JSON.stringify({
+        permit: permitSignature,
+        recoveryAddresses: squad,
+        owner,
+        recoveryScheme: {
+          m: 2,
+          n: 3,
+        },
+        chainId,
+        tokens,
+        backupId,
+      }),
+    })
 
-  return await res.json()
+    return await res.json()
+  } catch (e) {
+    console.log(e)
+    throw new Error('Error saving permit data.')
+  }
 }
 
 export async function getPermitData(owner: string) {

@@ -37,7 +37,7 @@ export function SquadInput({
   }
 
   const onContinue = async () => {
-    if (!chain || !signTypedDataAsync || !address) return
+    if (!chain || !signTypedDataAsync || !address || !backup.identifier) return
 
     const permitData = getBackupPermitData(chain.id, {
       pals: backup.squad,
@@ -61,7 +61,7 @@ export function SquadInput({
       })
 
       const squad = await resolveENS(provider, backup.squad)
-      await savePermitData(signature, squad, address, chain.id, backup.tokens)
+      await savePermitData(signature, squad, address, chain.id, backup.tokens, backup.identifier)
       setStep(3)
     } catch (e) {
       setError('U FUCKED UP...')
