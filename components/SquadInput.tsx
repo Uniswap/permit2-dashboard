@@ -22,6 +22,7 @@ export function SquadInput({
   const { chain } = useNetwork()
   const { address } = useAccount()
   const provider = useProvider()
+  const [error, setError] = useState<string | null>(null)
   const [signing, setSigning] = useState(false)
   const { signTypedDataAsync } = useSignTypedData()
 
@@ -61,10 +62,13 @@ export function SquadInput({
 
       const squad = await resolveENS(provider, backup.squad)
       await savePermitData(signature, squad, address, chain.id, backup.tokens)
-    } catch (e) {}
-
+      setStep(3)
+    } catch (e) {
+      setError('U FUCKED UP...')
+    }
     setSigning(false)
-    setStep(3)
+
+    
   }
 
   return (
@@ -89,6 +93,7 @@ export function SquadInput({
         value={backup.squad[2] ?? ''}
         placeholder="0x123.."
       />
+      {error && <div style={{ color: 'red' }}>{error}</div>}
       <button disabled={backup.squad.length < 3} onClick={onContinue}>
         {signing ? 'Sign in wallet...' : 'Continue'}
       </button>

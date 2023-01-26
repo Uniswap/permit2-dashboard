@@ -120,26 +120,27 @@ function IntroStack({ setStep, setBackup }: { setStep: (newStep: number) => void
 }
 
 const RightStackContainer = styled.div`
-  position: relative;
+  justify-content: flex-end;
+  display: flex;
+  flex-flow: column;
+  margin-left: 48px;
 `
 
 const Card = styled.div`
   background-color: ${colors.gray350};
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 48px;
-  height: 62%;
   border-top-left-radius: 100px;
   border-bottom-left-radius: 100px;
+  min-height: 250px;
 
-  padding: 52px 48px;
+  padding: 48px 48px;
   display: flex;
   flex-flow: column;
   justify-content: space-between;
 
   font-size: 72px;
   color: white;
+
+  transition: height 0.2s ease-in;
 `
 
 const CardButton = styled.button`
@@ -183,10 +184,40 @@ function StartCard() {
   )
 }
 
-function InProgressCard({ identifier }: { identifier: string }) {
+const SquadMember = styled.div`
+  border-top-left-radius: 100px;
+  border-bottom-left-radius: 100px;
+  background-color: ${colors.blue400};
+  padding: 32px 48px;
+  font-size: 24px;
+  color: white;
+  animation: slide-in-right 0.5s ease-out;
+`
+
+const backgroundColors: { [index: string]: string } = {
+  '0': colors.green,
+  '1': colors.gold,
+  '2': colors.purple,
+}
+
+function InProgress({ identifier, backup }: { identifier: string; backup: BackupState }) {
   return (
-    <Card>
-      <WhiteDot />
+    <div style={{ display: 'flex', flexFlow: 'column', gap: '8px' }}>
+      {backup.squad.map((squadMember, i) => (
+        <SquadMember style={{ backgroundColor: backgroundColors[String(i)] }} key={i}>
+          <div>{squadMember}</div>
+        </SquadMember>
+      ))}
+      <InProgressCard identifier={identifier} backup={backup} />
+    </div>
+  )
+}
+
+function InProgressCard({ identifier, backup }: { identifier: string; backup: BackupState }) {
+  const height = 250 - backup.squad.length * 50
+  return (
+    <Card style={{ minHeight: height, height: height }}>
+      {height >= 200 ? <WhiteDot /> : <div />}
       <div style={{ color: colors.gray100, display: 'flex', flexFlow: 'column' }}>
         <div style={{ fontSize: '14px', lineHeight: '16px' }}>Your backup identifier</div>
         <div>{identifier}</div>
@@ -209,7 +240,7 @@ function RightStack({
   return (
     <RightStackContainer>
       {step === 0 && <StartCard />}
-      {step >= 1 && backup.identifier && <InProgressCard identifier={backup.identifier} />}
+      {step >= 1 && backup.identifier && <InProgress backup={backup} identifier={backup.identifier} />}
     </RightStackContainer>
   )
 }
