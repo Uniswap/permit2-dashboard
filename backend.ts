@@ -11,26 +11,31 @@ export async function savePermitData(
   tokens: string[],
   backupId: string
 ) {
-  const res = await fetch(`${BACKEND_URL}/permit`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      permit: permitSignature,
-      recoveryAddresses: squad,
-      owner,
-      recoveryScheme: {
-        m: 2,
-        n: 3,
+  try {
+    const res = await fetch(`${BACKEND_URL}/permit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      chainId,
-      tokens,
-      backupId
-    }),
-  })
+      body: JSON.stringify({
+        permit: permitSignature,
+        recoveryAddresses: squad,
+        owner,
+        recoveryScheme: {
+          m: 2,
+          n: 3,
+        },
+        chainId,
+        tokens,
+        backupId,
+      }),
+    })
 
-  return await res.json()
+    return await res.json()
+  } catch (e) {
+    console.log(e)
+    throw new Error('Error saving permit data.')
+  }
 }
 
 export async function getPermitData(owner: string) {
