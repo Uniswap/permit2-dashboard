@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import styled from '@emotion/styled'
 
 import { ConnectKitProvider, getDefaultClient } from 'connectkit'
 import type { AppProps } from 'next/app'
@@ -53,25 +54,72 @@ export default function App({ Component, pageProps }: AppProps) {
       <ConnectKitProvider
         options={{
           walletConnectName: 'WalletConnect',
-          embedGoogleFonts: true,
         }}
         theme="soft"
         customTheme={{
-          '--ck-font-family': 'Fredoka',
+          '--ck-font-family': 'Replica',
           '--ck-modal-heading-font-weight': 400,
-          '--ck-connectbutton-color': colors.green400,
+          '--ck-connectbutton-color': colors.black,
           '--ck-connectbutton-hover-background': colors.yellow100,
           '--ck-connectbutton-background': colors.yellow100,
           '--ck-connectbutton-active-background': colors.yellow100,
-          '--ck-connectbutton-box-shadow': `inset 0 0 0 2px ${colors.yellow400},0 2px 0 0 ${colors.yellow400},0px 2px 4px rgba(0,0,0,0.02)`,
-          '--ck-connectbutton-active-box-shadow': `inset 0 0 0 2px ${colors.yellow400},0 2px 0 0 ${colors.yellow400},0px 2px 4px rgba(0,0,0,0.02)`,
+          '--ck-connectbutton-box-shadow': `inset 0 0 0 2px ${colors.black},0 2px 0 0 ${colors.black},0px 2px 4px rgba(0,0,0,0.02)`,
+          '--ck-connectbutton-active-box-shadow': `inset 0 0 0 2px ${colors.black},0 2px 0 0 ${colors.black},0px 2px 4px rgba(0,0,0,0.02)`,
         }}
       >
         <ApolloProvider client={apolloClient}>
-          <HeaderNav />
-          <Component {...pageProps} />
+          <MaxHeightContainer>
+            <HeaderNav />
+            <Component {...pageProps} />
+            <BottomShadow />
+          </MaxHeightContainer>
         </ApolloProvider>
       </ConnectKitProvider>
     </WagmiConfig>
   )
 }
+
+function BottomShadow() {
+  return (
+    <BottomShadowContainer>
+      <div>
+        <Card />
+      </div>
+      <div>
+        <Card style={{ borderTopRightRadius: 0, right: 0 }} />
+      </div>
+    </BottomShadowContainer>
+  )
+}
+
+const BottomShadowContainer = styled.div`
+  background-color: ${colors.gray100};
+  height: 40px;
+  width: 100%;
+
+  display: flex;
+  > div {
+    flex: 1;
+    padding: 0 48px;
+    position: relative;
+  }
+`
+
+const Card = styled.div`
+  position: absolute;
+  top: 0;
+  left: 48px;
+  right: 48px;
+  bottom: 0;
+  background-color: ${colors.gray150};
+  border-top-right-radius: 100px;
+  border-top-left-radius: 100px;
+`
+
+const MaxHeightContainer = styled.div`
+  max-height: 100vh;
+  height: 100vh;
+
+  display: flex;
+  flex-flow: column;
+`

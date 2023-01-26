@@ -1,0 +1,46 @@
+@font-face {
+    font-family: 'Replica';
+    src: url('/fonts/Replica-Regular.otf') format('truetype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Replica';
+    src: url('/fonts/Replica-Bold.otf') format('truetype');
+    font-weight: bold;
+}
+
+/* @font-face {
+    font-family: 'Replica';
+    src: url('/fonts/Replica-Light.otf') format('truetype');
+    font-weight: lighter;
+} */
+
+@font-face {
+    font-family: 'Replica';
+    src: url('/fonts/Replica-Italic.otf') format('truetype');
+    font-style: italic;
+}
+
+body {
+    margin: 0;
+    font-family: 'Replica';
+}
+
+button {
+    background-color: black;
+    border: none;
+    padding: 16px 32px;
+    cursor: pointer;
+    border-radius: 100px;
+    color: white;
+}
+
+button:hover {
+    opacity: 80%;
+}
+
+button:disabled {
+    opacity: 40%;
+    cursor: not-allowed;
+}

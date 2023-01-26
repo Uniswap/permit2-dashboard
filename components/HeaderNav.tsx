@@ -8,11 +8,10 @@ export function HeaderNav() {
   return (
     <Container>
       <Left>
-        <Title href="/">Token Backup</Title>
+        <Title href="/">SuperTokenBackerUpper</Title>
         <NetworkLogo />
       </Left>
       <Right>
-        <StyledLink href="/recover">Begin Recovery</StyledLink>
         <ConnectKitButton theme="rounded" />
       </Right>
     </Container>
@@ -25,12 +24,18 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  padding: 48px;
+  padding: 48px 48px 20px 48px;
   color: ${colors.green400};
 
   @media only screen and (max-width: 900px) {
     flex-flow: column;
     justify-content: center;
+  }
+
+  a,
+  a:visited {
+    text-decoration: none;
+    color: black;
   }
 `
 
@@ -86,6 +91,6 @@ const StyledLink = styled(Link)`
 `
 
 const Title = styled(Link)`
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 600;
 `

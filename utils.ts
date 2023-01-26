@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useAccount as useWagmiAccount, useNetwork } from 'wagmi'
 
+export const EMPTY_ARRAY = []
+
+export type Token = {
+  chainId: ChainId
+  address: string
+}
+
 // override wagmi's useAccount to work with NextJS SSR
 // https://github.com/wagmi-dev/wagmi/issues/542
 export function useAccount() {
