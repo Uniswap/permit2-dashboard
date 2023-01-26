@@ -25,6 +25,7 @@
     "ethers": "^5.7.2",
     "graphql": "^16.6.0",
     "next": "13.1.5",
+    "random-words": "^1.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typechain": "^8.1.1",
