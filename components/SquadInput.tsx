@@ -3,7 +3,7 @@ import { getBackupPermitData } from '@/backups'
 import { BackupState } from '@/types'
 import { resolveENS, useAccount } from '@/utils'
 import styled from '@emotion/styled'
-import { constants, Signer } from 'ethers'
+import { BigNumber, constants, Signer } from 'ethers'
 import { useState } from 'react'
 import { useNetwork, useProvider, useSigner, useSignTypedData } from 'wagmi'
 import { Back } from './Back'
@@ -37,12 +37,12 @@ export function SquadInput({
   }
 
   const onContinue = async () => {
-    if (!chain || !signTypedDataAsync || !address || !backup.identifier) return
+    if (!chain || !signTypedDataAsync || !address) return
 
     const permitData = getBackupPermitData(chain.id, {
       pals: backup.squad,
       tokens: backup.tokens,
-      threshold: constants.MaxUint256,
+      threshold: BigNumber.from(2),
     })
 
     // some type of error handling here
@@ -61,14 +61,14 @@ export function SquadInput({
       })
 
       const squad = await resolveENS(provider, backup.squad)
-      await savePermitData(signature, squad, address, chain.id, backup.tokens, backup.identifier)
+      await savePermitData(signature, squad, address, chain.id, backup.tokens)
       setStep(3)
     } catch (e) {
       setError('U FUCKED UP...')
     }
     setSigning(false)
 
-    
+
   }
 
   return (

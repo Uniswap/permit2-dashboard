@@ -8,8 +8,7 @@ export async function savePermitData(
   squad: string[],
   owner: string,
   chainId: number,
-  tokens: string[],
-  backupId: string
+  tokens: string[]
 ) {
   try {
     const res = await fetch(`${BACKEND_URL}/permit`, {
@@ -27,7 +26,6 @@ export async function savePermitData(
         },
         chainId,
         tokens,
-        backupId,
       }),
     })
 
@@ -55,7 +53,7 @@ export async function getPermitData(owner: string) {
   }
 }
 
-export async function startRecovery(owner: string, recipient: string) {
+export async function startRecovery(owner: string, recipient: string, recoveryId: string) {
   try {
     const url = `${BACKEND_URL}/recovery/start/${owner}`
     const formattedRequest = {
@@ -65,7 +63,8 @@ export async function startRecovery(owner: string, recipient: string) {
         'content-type': 'application/json',
       },
       data: JSON.stringify({
-        recipient: recipient,
+        recipient,
+        recoveryId,
       }),
       url,
     }
