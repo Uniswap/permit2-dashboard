@@ -9,6 +9,7 @@ import { useProvider, useToken } from 'wagmi'
 import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
 import { SquadInput } from '@/components/SquadInput'
 import { useModal } from 'connectkit'
+import randomWords from 'random-words'
 
 const tokenBalancesGql = gql`
   query PortfolioBalances($ownerAddress: String!) {
@@ -152,7 +153,7 @@ const WhiteDot = styled.div`
   background-color: white;
 `
 
-function StartCard({ setStep }: { setStep: (step: number) => void }) {
+function StartCard({ setStep, setBackup }: { setStep: (step: number) => void; setBackup: any }) {
   const { isConnected } = useAccount()
   const { setOpen } = useModal()
   const handleClick = () => {
@@ -160,6 +161,13 @@ function StartCard({ setStep }: { setStep: (step: number) => void }) {
       setOpen(true)
       return
     }
+
+    const identifier = randomWords({ exactly: 5, wordsPerString: 2, separator: '-' })[0]
+    setBackup((backup: BackupState) => ({
+      ...backup,
+      identifier,
+    }))
+
     setStep(1)
   }
   return (
@@ -170,20 +178,33 @@ function StartCard({ setStep }: { setStep: (step: number) => void }) {
   )
 }
 
-function InProgressCard() {
+function InProgressCard({ identifier }: { identifier: string }) {
   return (
     <Card>
       <WhiteDot />
-      <div style={{ color: colors.gray100 }}>random-words</div>
+      <div style={{ color: colors.gray100, display: 'flex', flexFlow: 'column' }}>
+        <div style={{ fontSize: '14px', lineHeight: '16px' }}>Your backup identifier</div>
+        <div>{identifier}</div>
+      </div>
     </Card>
   )
 }
 
-function RightStack({ step, setStep }: { step: number; setStep: (step: number) => void }) {
+function RightStack({
+  step,
+  setStep,
+  backup,
+  setBackup,
+}: {
+  step: number
+  setStep: (step: number) => void
+  backup: BackupState
+  setBackup: any
+}) {
   return (
     <RightStackContainer>
-      {step === 0 && <StartCard setStep={setStep} />}
-      {step >= 1 && <InProgressCard />}
+      {step === 0 && <StartCard setBackup={setBackup} setStep={setStep} />}
+      {step >= 1 && backup.identifier && <InProgressCard identifier={backup.identifier} />}
     </RightStackContainer>
   )
 }
@@ -231,6 +252,7 @@ const initialBackupState: BackupState = {
   squad: [],
   tokens: [],
   signature: null,
+  identifier: null,
 }
 
 // Get a list of token addresses that have a non-zero allowance on Permit2
@@ -284,7 +306,7 @@ export default function Home() {
         tokenBalances={tokenBalances}
         permit2Approvals={permit2Approvals}
       />
-      <RightStack step={step} setStep={setStep} />
+      <RightStack step={step} setStep={setStep} backup={backup} setBackup={setBackup} />
     </HomeContainer>
   )
 }
