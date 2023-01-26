@@ -2,6 +2,7 @@ import { getBackupPermitData } from '@/backups'
 import { BackupState } from '@/types'
 import styled from '@emotion/styled'
 import { constants, Signer } from 'ethers'
+import { useState } from 'react'
 import { useNetwork, useSigner, useSignTypedData } from 'wagmi'
 import { Back } from './Back'
 import { Input } from './Input'
@@ -17,7 +18,7 @@ export function SquadInput({
   setStep: (newStep: number) => void
 }) {
   const { chain } = useNetwork()
-  const { data: signer } = useSigner()
+  const [signing, setSigning] = useState(false)
   const { signTypedDataAsync } = useSignTypedData()
 
   const onChangeSquadMember = (index: number) => (newSquadMember: string) => {
@@ -31,9 +32,6 @@ export function SquadInput({
   }
 
   const onContinue = async () => {
-    // sign typed data message here
-    //
-
     if (!chain || !signTypedDataAsync) return
 
     const permitData = getBackupPermitData(chain.id, {
@@ -47,6 +45,7 @@ export function SquadInput({
 
     const { domain, types, values } = permitData
     try {
+      setSigning(true)
       const signature = await signTypedDataAsync({
         // @ts-ignore uhhhhh
         domain,
@@ -58,6 +57,7 @@ export function SquadInput({
     } catch (e) {}
 
     // save signature here
+    setSigning(false)
     setStep(3)
   }
 
@@ -83,7 +83,9 @@ export function SquadInput({
         value={backup.squad[2] ?? ''}
         placeholder="0x123.."
       />
-      <button onClick={onContinue}>Continue</button>
+      <button disabled={backup.squad.length < 3} onClick={onContinue}>
+        {signing ? 'Sign in wallet...' : 'Continue'}
+      </button>
     </Container>
   )
 }
