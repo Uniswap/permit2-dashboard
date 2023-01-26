@@ -1,9 +1,11 @@
+import { savePermitData } from '@/backend'
 import { getBackupPermitData } from '@/backups'
 import { BackupState } from '@/types'
+import { resolveENS, useAccount } from '@/utils'
 import styled from '@emotion/styled'
 import { constants, Signer } from 'ethers'
 import { useState } from 'react'
-import { useNetwork, useSigner, useSignTypedData } from 'wagmi'
+import { useNetwork, useProvider, useSigner, useSignTypedData } from 'wagmi'
 import { Back } from './Back'
 import { Input } from './Input'
 import { StepTitle } from './StepTitle'
@@ -18,6 +20,8 @@ export function SquadInput({
   setStep: (newStep: number) => void
 }) {
   const { chain } = useNetwork()
+  const { address } = useAccount()
+  const provider = useProvider()
   const [signing, setSigning] = useState(false)
   const { signTypedDataAsync } = useSignTypedData()
 
@@ -32,7 +36,7 @@ export function SquadInput({
   }
 
   const onContinue = async () => {
-    if (!chain || !signTypedDataAsync) return
+    if (!chain || !signTypedDataAsync || !address) return
 
     const permitData = getBackupPermitData(chain.id, {
       pals: backup.squad,
@@ -54,9 +58,11 @@ export function SquadInput({
         // @ts-ignore uhhhh fix maybe?
         value: values,
       })
+
+      const squad = await resolveENS(provider, backup.squad)
+      await savePermitData(signature, squad, address, chain.id, backup.tokens)
     } catch (e) {}
 
-    // save signature here
     setSigning(false)
     setStep(3)
   }

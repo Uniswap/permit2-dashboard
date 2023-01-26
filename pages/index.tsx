@@ -1,4 +1,4 @@
-import { ChainId, EMPTY_ARRAY, fromGraphQLChain, isNativeCurrencyAddress, useAccount } from '@/utils'
+import { EMPTY_ARRAY, fromGraphQLChain, isNativeCurrencyAddress, useAccount } from '@/utils'
 import styled from '@emotion/styled'
 import { gql, useQuery } from '@apollo/client'
 import { colors } from '@/styles/colors'
@@ -8,6 +8,7 @@ import { TokenSelector } from '@/components/TokenSelector'
 import { useProvider, useToken } from 'wagmi'
 import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
 import { SquadInput } from '@/components/SquadInput'
+import { SetupComplete } from '@/components/SetupComplete'
 
 const tokenBalancesGql = gql`
   query PortfolioBalances($ownerAddress: String!) {
@@ -212,6 +213,10 @@ function LeftStack({
 
   if (step === 2) {
     return <SquadInput backup={backup} setBackup={setBackup} setStep={setStep} />
+  }
+
+  if (step === 3) {
+    return <SetupComplete tokenBalances={tokenBalances} backup={backup} />
   }
 
   return <div />

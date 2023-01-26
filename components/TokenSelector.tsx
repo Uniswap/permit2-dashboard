@@ -9,7 +9,7 @@ import { constants } from 'ethers'
 import { useState } from 'react'
 import { Back } from './Back'
 
-function getApprovedValue(approved: string[], tokenBalances: any) {
+export function getApprovedValue(approved: string[], tokenBalances: any) {
   if (!tokenBalances) return 0
 
   let sum = 0
