@@ -37,7 +37,7 @@ export function SquadInput({
   }
 
   const onContinue = async () => {
-    if (!chain || !signTypedDataAsync || !address) return
+    if (!chain || !signTypedDataAsync || !address || !backup.identifier) return
 
     const permitData = getBackupPermitData(chain.id, {
       pals: backup.squad,
