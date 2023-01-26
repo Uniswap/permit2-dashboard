@@ -7,6 +7,7 @@ import { useProvider, useSigner } from 'wagmi'
 import { StepTitle } from './StepTitle'
 import { constants } from 'ethers'
 import { useState } from 'react'
+import { Back } from './Back'
 
 function getApprovedValue(approved: string[], tokenBalances: any) {
   if (!tokenBalances) return 0
@@ -37,6 +38,7 @@ export function TokenSelector({
   const approvedValue = getApprovedValue(permit2Approvals.approved, tokenBalances)
   return (
     <Container>
+      <Back setStep={setStep} />
       <StepTitle
         index={1}
         title={`Allow tokens to be backed up (Total value: ${formatNumber(approvedValue, NumberType.FiatTokenPrice)})`}
