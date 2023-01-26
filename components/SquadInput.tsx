@@ -1,5 +1,11 @@
+import { savePermitData } from '@/backend'
+import { getBackupPermitData } from '@/backups'
 import { BackupState } from '@/types'
+import { resolveENS, useAccount } from '@/utils'
 import styled from '@emotion/styled'
+import { constants, Signer } from 'ethers'
+import { useState } from 'react'
+import { useNetwork, useProvider, useSigner, useSignTypedData } from 'wagmi'
 import { Back } from './Back'
 import { Input } from './Input'
 import { StepTitle } from './StepTitle'
@@ -13,17 +19,51 @@ export function SquadInput({
   setBackup: any
   setStep: (newStep: number) => void
 }) {
+  const { chain } = useNetwork()
+  const { address } = useAccount()
+  const provider = useProvider()
+  const [signing, setSigning] = useState(false)
+  const { signTypedDataAsync } = useSignTypedData()
+
   const onChangeSquadMember = (index: number) => (newSquadMember: string) => {
     const newSquad = [...backup.squad]
     newSquad[index] = newSquadMember
+
     setBackup((prev: BackupState) => ({
       ...prev,
       squad: newSquad,
     }))
   }
 
-  const onContinue = () => {
-    // sign typed data message here
+  const onContinue = async () => {
+    if (!chain || !signTypedDataAsync || !address) return
+
+    const permitData = getBackupPermitData(chain.id, {
+      pals: backup.squad,
+      tokens: backup.tokens,
+      threshold: constants.MaxUint256,
+    })
+
+    // some type of error handling here
+    if (!permitData) return
+
+    const { domain, types, values } = permitData
+    try {
+      setSigning(true)
+      const signature = await signTypedDataAsync({
+        // @ts-ignore uhhhhh
+        domain,
+        // @ts-ignore uhh fix this later
+        types,
+        // @ts-ignore uhhhh fix maybe?
+        value: values,
+      })
+
+      const squad = await resolveENS(provider, backup.squad)
+      await savePermitData(signature, squad, address, chain.id, backup.tokens)
+    } catch (e) {}
+
+    setSigning(false)
     setStep(3)
   }
 
@@ -45,11 +85,13 @@ export function SquadInput({
       />
       <Input
         title="Squad member 3"
-        onChange={onChangeSquadMember(3)}
-        value={backup.squad[3] ?? ''}
+        onChange={onChangeSquadMember(2)}
+        value={backup.squad[2] ?? ''}
         placeholder="0x123.."
       />
-      <button onClick={onContinue}>Continue</button>
+      <button disabled={backup.squad.length < 3} onClick={onContinue}>
+        {signing ? 'Sign in wallet...' : 'Continue'}
+      </button>
     </Container>
   )
 }

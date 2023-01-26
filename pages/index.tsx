@@ -1,13 +1,14 @@
-import { ChainId, EMPTY_ARRAY, fromGraphQLChain, isNativeCurrencyAddress, useAccount } from '@/utils'
+import { EMPTY_ARRAY, fromGraphQLChain, isNativeCurrencyAddress, useAccount } from '@/utils'
 import styled from '@emotion/styled'
 import { gql, useQuery } from '@apollo/client'
 import { colors } from '@/styles/colors'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BackupState } from '@/types'
 import { TokenSelector } from '@/components/TokenSelector'
-import { useProvider, useToken } from 'wagmi'
+import { useProvider } from 'wagmi'
 import { getTokenContract, PERMIT2_CONTRACT_ADDRESS } from '@/contracts'
 import { SquadInput } from '@/components/SquadInput'
+import { SetupComplete } from '@/components/SetupComplete'
 import { useModal } from 'connectkit'
 
 const tokenBalancesGql = gql`
@@ -222,6 +223,10 @@ function LeftStack({
 
   if (step === 2) {
     return <SquadInput backup={backup} setBackup={setBackup} setStep={setStep} />
+  }
+
+  if (step === 3) {
+    return <SetupComplete tokenBalances={tokenBalances} backup={backup} />
   }
 
   return <div />

@@ -1,3 +1,4 @@
+import { providers } from 'ethers'
 import { useEffect, useState } from 'react'
 import { useAccount as useWagmiAccount, useNetwork } from 'wagmi'
 
@@ -78,4 +79,22 @@ export function fromGraphQLChain(chain: Chain | undefined): ChainId | null {
   }
 
   return null
+}
+
+export async function resolveENS(provider: providers.Provider, squad: string[]): Promise<string[]> {
+  const resolved = []
+  for (var i = 0; i < squad.length; i++) {
+    if (squad[i].endsWith('.eth')) {
+      const resolvedAddress = await provider.resolveName(squad[i])
+      if (!resolvedAddress) {
+        throw new Error('No address found for ENS')
+      }
+
+      resolved[i] = resolvedAddress
+    } else {
+      resolved[i] = squad[i]
+    }
+  }
+
+  return resolved
 }
