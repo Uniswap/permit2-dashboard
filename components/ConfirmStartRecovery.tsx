@@ -95,7 +95,7 @@ export function ConfirmStartRecovery({
     const permitData = {
       permitted,
       nonce: BACKUP_NONCE,
-      deadline: recoveryData.deadline,
+      deadline: ethers.constants.MaxUint256,
     }
 
     const recoveryInfo = {
