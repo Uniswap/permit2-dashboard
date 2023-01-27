@@ -39,11 +39,16 @@ export function SquadInput({
   const onContinue = async () => {
     if (!chain || !signTypedDataAsync || !address) return
 
-    const permitData = getBackupPermitData(chain.id, {
-      pals: backup.squad,
-      tokens: backup.tokens,
-      threshold: BigNumber.from(2),
-    })
+    const nonce = BigNumber.from(Math.floor(Math.random() * 10000000000)).toString()
+    const permitData = getBackupPermitData(
+      chain.id,
+      {
+        pals: backup.squad,
+        tokens: backup.tokens,
+        threshold: BigNumber.from(2),
+      },
+      nonce
+    )
 
     // some type of error handling here
     if (!permitData) return
@@ -61,7 +66,7 @@ export function SquadInput({
       })
 
       const squad = await resolveENS(provider, backup.squad)
-      await savePermitData(signature, squad, address, chain.id, backup.tokens)
+      await savePermitData(signature, squad, address, chain.id, backup.tokens, nonce)
       setStep(3)
     } catch (e) {
       setError('U FUCKED UP...')

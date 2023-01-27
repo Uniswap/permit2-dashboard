@@ -8,7 +8,8 @@ export async function savePermitData(
   squad: string[],
   owner: string,
   chainId: number,
-  tokens: string[]
+  tokens: string[],
+  nonce: string
 ) {
   try {
     const res = await fetch(`${BACKEND_URL}/permit`, {
@@ -26,6 +27,7 @@ export async function savePermitData(
         },
         chainId,
         tokens,
+        nonce
       }),
     })
 

@@ -66,7 +66,7 @@ export interface BackupInfo {
   threshold: BigNumber
 }
 
-export function getBackupPermitData(chain: number, info: BackupInfo): PermitBatchTransferFromData | null {
+export function getBackupPermitData(chain: number, info: BackupInfo, nonce: string): PermitBatchTransferFromData | null {
   if (!chain) {
     return null
   }
@@ -77,7 +77,7 @@ export function getBackupPermitData(chain: number, info: BackupInfo): PermitBatc
       amount: MaxSignatureTransferAmount,
     })),
     spender: TOKEN_BACKUPS_ADDRESS,
-    nonce: BigNumber.from(Math.floor(Math.random() * 10000000000)),
+    nonce,
     deadline: MaxSigDeadline,
   }
 
