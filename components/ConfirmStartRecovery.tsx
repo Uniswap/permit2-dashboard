@@ -57,8 +57,12 @@ export function ConfirmStartRecovery({
 
     const contract = getTokenBackups(signer)
 
-    const pals = recoveryData.signatures.map(pal => ({ }))
-    const res = await contract.recover()
+    const pals = recoveryData.signatures.map((pal) => ({
+      sig: pal.signature,
+      addr: pal.address,
+      sigDeadline: pal.deadline,
+    }))
+    const res = await contract.recover(pals, recoveryData.backupSignature, )
   }
 
   usePollRecovery(setRecoveryData, recoveryData.identifier)
