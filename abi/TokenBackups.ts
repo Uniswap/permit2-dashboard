@@ -23,16 +23,16 @@ import type {
   PromiseOrValue,
 } from "./common";
 
-export type PalSignatureStruct = {
-  newAddress: PromiseOrValue<string>;
+export type RecoveryInfoStruct = {
+  oldAddress: PromiseOrValue<string>;
   transferDetails: ISignatureTransfer.SignatureTransferDetailsStruct[];
 };
 
-export type PalSignatureStructOutput = [
+export type RecoveryInfoStructOutput = [
   string,
   ISignatureTransfer.SignatureTransferDetailsStructOutput[]
 ] & {
-  newAddress: string;
+  oldAddress: string;
   transferDetails: ISignatureTransfer.SignatureTransferDetailsStructOutput[];
 };
 
@@ -47,14 +47,16 @@ export type BackupWitnessStructOutput = [string[], BigNumber] & {
 };
 
 export declare namespace TokenBackups {
-  export type PalsStruct = {
-    sigs: PromiseOrValue<BytesLike>[];
-    addresses: PromiseOrValue<string>[];
+  export type PalStruct = {
+    sig: PromiseOrValue<BytesLike>;
+    addr: PromiseOrValue<string>;
+    sigDeadline: PromiseOrValue<BigNumberish>;
   };
 
-  export type PalsStructOutput = [string[], string[]] & {
-    sigs: string[];
-    addresses: string[];
+  export type PalStructOutput = [string, string, BigNumber] & {
+    sig: string;
+    addr: string;
+    sigDeadline: BigNumber;
   };
 }
 
@@ -98,23 +100,33 @@ export declare namespace ISignatureTransfer {
 
 export interface TokenBackupsInterface extends utils.Interface {
   functions: {
-    "recover((bytes[],address[]),bytes,((address,uint256)[],uint256,uint256),(address,(address,uint256)[]),(address[],uint256),address)": FunctionFragment;
+    "DOMAIN_SEPARATOR()": FunctionFragment;
+    "recover((bytes,address,uint256)[],bytes,((address,uint256)[],uint256,uint256),(address,(address,uint256)[]),(address[],uint256))": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "recover"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "DOMAIN_SEPARATOR" | "recover"
+  ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "DOMAIN_SEPARATOR",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "recover",
     values: [
-      TokenBackups.PalsStruct,
+      TokenBackups.PalStruct[],
       PromiseOrValue<BytesLike>,
       ISignatureTransfer.PermitBatchTransferFromStruct,
-      PalSignatureStruct,
-      BackupWitnessStruct,
-      PromiseOrValue<string>
+      RecoveryInfoStruct,
+      BackupWitnessStruct
     ]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "DOMAIN_SEPARATOR",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "recover", data: BytesLike): Result;
 
   events: {};
@@ -147,35 +159,38 @@ export interface TokenBackups extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
+
     recover(
-      pals: TokenBackups.PalsStruct,
+      pals: TokenBackups.PalStruct[],
       backup: PromiseOrValue<BytesLike>,
       permitData: ISignatureTransfer.PermitBatchTransferFromStruct,
-      palData: PalSignatureStruct,
+      recoveryInfo: RecoveryInfoStruct,
       witnessData: BackupWitnessStruct,
-      oldAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
+  DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
+
   recover(
-    pals: TokenBackups.PalsStruct,
+    pals: TokenBackups.PalStruct[],
     backup: PromiseOrValue<BytesLike>,
     permitData: ISignatureTransfer.PermitBatchTransferFromStruct,
-    palData: PalSignatureStruct,
+    recoveryInfo: RecoveryInfoStruct,
     witnessData: BackupWitnessStruct,
-    oldAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
+
     recover(
-      pals: TokenBackups.PalsStruct,
+      pals: TokenBackups.PalStruct[],
       backup: PromiseOrValue<BytesLike>,
       permitData: ISignatureTransfer.PermitBatchTransferFromStruct,
-      palData: PalSignatureStruct,
+      recoveryInfo: RecoveryInfoStruct,
       witnessData: BackupWitnessStruct,
-      oldAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -183,25 +198,27 @@ export interface TokenBackups extends BaseContract {
   filters: {};
 
   estimateGas: {
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
+
     recover(
-      pals: TokenBackups.PalsStruct,
+      pals: TokenBackups.PalStruct[],
       backup: PromiseOrValue<BytesLike>,
       permitData: ISignatureTransfer.PermitBatchTransferFromStruct,
-      palData: PalSignatureStruct,
+      recoveryInfo: RecoveryInfoStruct,
       witnessData: BackupWitnessStruct,
-      oldAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     recover(
-      pals: TokenBackups.PalsStruct,
+      pals: TokenBackups.PalStruct[],
       backup: PromiseOrValue<BytesLike>,
       permitData: ISignatureTransfer.PermitBatchTransferFromStruct,
-      palData: PalSignatureStruct,
+      recoveryInfo: RecoveryInfoStruct,
       witnessData: BackupWitnessStruct,
-      oldAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
