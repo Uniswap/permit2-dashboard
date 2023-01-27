@@ -118,7 +118,7 @@ export function ConfirmStartRecovery({
         .filter(Boolean),
     }
     const witnessData = {
-      signers: recoveryData.signatures.map((pal) => pal.address),
+      signers: recoveryData.squad,
       threshold: 2,
     }
 
