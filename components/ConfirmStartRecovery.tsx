@@ -13,7 +13,6 @@ function usePollRecovery(setRecoveryData: any, identifier?: string | null) {
     const interval = setInterval(async () => {
       if (!identifier) return
       const recoveryData = await getRecoveryData(identifier)
-      console.log('recoveryData', recoveryData)
       const signatures = recoveryData.data.signatures
       setRecoveryData(
         (prev: RecoveryData) =>
@@ -38,7 +37,7 @@ export function ConfirmStartRecovery({
   recoveryData: RecoveryData
   setRecoveryData: any
 }) {
-  const rescueLink = `https://token-backup-interface.vercel.app/recover/${recoveryData.identifier}`
+  const rescueLink = `https://token-backup-interface.vercel.app/rescue/${recoveryData.identifier}`
   const [copied, setCopied] = useState(false)
   const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
 
