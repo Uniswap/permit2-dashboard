@@ -42,8 +42,7 @@ const tokenBalancesGql = gql`
   }
 `
 
-export function useTokenBalances() {
-  const { address, chain } = useAccount()
+export function useTokenBalances(address: string | null | undefined, chainId: number = 1) {
   const { data } = useQuery(tokenBalancesGql, { variables: { ownerAddress: address }, skip: !address })
 
   return useMemo(
@@ -51,12 +50,12 @@ export function useTokenBalances() {
       data?.portfolios[0]?.tokenBalances.filter((tokenBalance: any) => {
         const tokenChain = fromGraphQLChain(tokenBalance.token.chain)
         return (
-          tokenChain === chain?.id &&
+          tokenChain === chainId &&
           // doesnt work with ETH rn :(
           !isNativeCurrencyAddress(tokenChain, tokenBalance.token.address)
         )
       }),
-    [data, chain?.id]
+    [data, chainId]
   )
 }
 
@@ -126,7 +125,7 @@ const RightStackContainer = styled.div`
   margin-left: 48px;
 `
 
-const Card = styled.div`
+export const Card = styled.div`
   background-color: ${colors.gray350};
   border-top-left-radius: 100px;
   border-bottom-left-radius: 100px;
@@ -332,8 +331,9 @@ function usePermit2Approvals(tokenBalances: any) {
 
 export default function Home() {
   const [step, setStep] = useState<number>(0)
+  const { address, chain } = useAccount()
   const [backup, setBackup] = useState<BackupState>(initialBackupState)
-  const tokenBalances = useTokenBalances()
+  const tokenBalances = useTokenBalances(address, chain?.id)
   const permit2Approvals = usePermit2Approvals(tokenBalances)
 
   return (

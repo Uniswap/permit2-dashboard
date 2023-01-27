@@ -1,39 +1,128 @@
+import { getPermitData, startRecovery } from '@/backend'
+import { ConfirmStartRecovery } from '@/components/ConfirmStartRecovery'
+import { Input } from '@/components/Input'
 import { colors } from '@/styles/colors'
 import styled from '@emotion/styled'
-import { useEffect, useState } from 'react'
-import { useTokenBalances } from '.'
-import Link from 'next/link'
+import { validateAndParseAddress } from '@uniswap/sdk-core'
+import { useState } from 'react'
+import { Card, useTokenBalances, WhiteDot } from '.'
+import randomWords from 'random-words'
+import { RecoveryData } from '@/types'
 import Icon from '../public/icon.png'
+import Image from 'next/image'
+import { useEnsName } from 'wagmi'
 
-import { useAccount } from '@/utils'
-import { formatNumber } from '@/format'
-import { getPermitData } from '@/backend'
+const initialRecoveryData = {
+  originalAddress: null,
+  recipientAddress: null,
+  status: 'pending',
+  signatures: {},
+  squad: [],
+  permittedTokens: [],
+  backedUpTokenCount: 0,
+  backedUpTokenValue: 0,
+  identifier: null,
+}
 
-const RecoveryContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-flow: row;
-  > div {
-    width: 50%;
-    box-sizing: border-box;
+export default function Recovery() {
+  const [step, setStep] = useState(0)
+  const [recoveryData, setRecoveryData] = useState<RecoveryData>(initialRecoveryData)
+  const tokenBalances = useTokenBalances(recoveryData.originalAddress, 1 /* default to mainnet */)
+  const backedUpTokens = recoveryData.permittedTokens.map((token: string) => token.toLowerCase())
+  const filteredTokenBalances = tokenBalances?.filter((tokenBalance: any) =>
+    backedUpTokens.includes(tokenBalance.token.address.toLowerCase())
+  )
+  const backedUpBalance =
+    filteredTokenBalances?.reduce((sum: number, tokenBalance: any) => tokenBalance.denominatedValue.value + sum, 0) ?? 0
+
+  return (
+    <RecoveryContainer>
+      <Left
+        step={step}
+        setStep={setStep}
+        backedUpTokens={backedUpTokens}
+        backedUpBalance={backedUpBalance}
+        recoveryData={recoveryData}
+        setRecoveryData={setRecoveryData}
+      />
+      <Right step={step} signers={recoveryData.squad} signed={Object.keys(recoveryData.signatures)} />
+    </RecoveryContainer>
+  )
+}
+
+function Left({
+  step,
+  setStep,
+  recoveryData,
+  setRecoveryData,
+  backedUpTokens,
+  backedUpBalance,
+}: {
+  step: number
+  setStep: (newStep: number) => void
+  recoveryData: RecoveryData
+  setRecoveryData: any
+  backedUpTokens: string[]
+  backedUpBalance: number
+}) {
+  if (step === 0) {
+    return <StartRecovery setStep={setStep} recoveryData={recoveryData} setRecoveryData={setRecoveryData} />
   }
 
-  overflow: hidden;
-  flex: 1;
-`
-
-const RecoveryStackContainer = styled.div`
-  padding: 20px 48px 0 48px;
-  color: white;
-
-  > div {
-    border-radius: 100px;
-    font-size: 20px;
+  if (step === 1) {
+    return (
+      <ConfirmStartRecovery
+        recoveryData={recoveryData}
+        backedUpBalance={backedUpBalance}
+        backedUpTokens={backedUpTokens}
+      />
+    )
   }
+
+  return <div />
+}
+const LeftContainer = styled.div`
+  padding: 20px 48px;
+  gap: 20px;
 
   display: flex;
   flex-flow: column;
+  overflow: hidden;
 `
+
+const RightContainer = styled.div`
+  justify-content: flex-end;
+  display: flex;
+  flex-flow: column;
+  margin-left: 48px;
+`
+
+function RecoveryAddressCard({ signer, index, isSigned }: { signer: string; index: number; isSigned: boolean }) {
+  // @ts-ignore
+  const { data: ensName } = useEnsName({ address: signer, chainId: 1 })
+  const cardColors = [colors.green, colors.gold, colors.purple]
+  return (
+    <div>
+      <div
+        style={{
+          backgroundColor: isSigned ? cardColors[index % cardColors.length] : colors.gray300,
+          padding: '10px',
+          margin: '5px',
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          fontSize: '50px',
+          alignSelf: 'flex-end',
+          borderRadius: '100px 0 0 100px',
+          color: 'white',
+        }}
+      >
+        <Image src="/icon.png" height={115} width={115} alt="Flower icon" />
+        <div style={{ marginLeft: '24px' }}>{ensName ?? signer}</div>
+      </div>
+    </div>
+  )
+}
 
 const CardButton = styled.div`
   background-color: ${colors.gray350};
@@ -50,149 +139,148 @@ const CardButton = styled.div`
   align-self: flex-end;
 `
 
-function RecoveryAddressCard({ signer, index }: { signer: string; index: number }) {
-  const cardColors = [colors.green, colors.gold, colors.purple]
-  return (
-    <div>
-      <div
-        style={{
-          backgroundColor: cardColors[index % cardColors.length],
-          padding: '10px',
-          margin: '5px',
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          fontSize: '50px',
-          alignSelf: 'flex-end',
-          borderRadius: '100px 0 0 100px',
-          width: '1000px',
-          color: 'white',
-        }}
-      >
-        <img src={Icon.src} style={{ marginLeft: '10px', height: '115px', width: '115px' }} />
-        <div style={{ marginLeft: '100px' }}>{signer}</div>
-      </div>
-    </div>
-  )
-}
-
 function BackupIdCard() {
   return (
     <CardButton>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <div style={{ backgroundColor: 'white', height: '115px', width: '115px', borderRadius: '100%' }} />
-        <div style={{ color: 'white', opacity: '.2', marginLeft: '100px' }}>callous-iceman</div>
+        <div style={{ color: 'white', marginLeft: '24px' }}>🛟</div>
       </div>
     </CardButton>
   )
 }
 
-function RightStack({ signers }: { signers: string[] }) {
-  return (
-    <div style={{ display: 'flex', height: '100%' }}>
-      <div style={{ alignSelf: 'flex-end' }}>
-        {signers.map((signer, i) => {
-          return <RecoveryAddressCard signer={signer} index={i} key={i} />
-        })}
-        <BackupIdCard />
-      </div>
-    </div>
-  )
-}
+function Right({ step, signers, signed }: { step: number; signers: string[]; signed: string[] }) {
+  if (step === 0) {
+    return (
+      <RightContainer>
+        <Card>
+          <WhiteDot />
+          <div>🛟 Recover</div>
+        </Card>
+      </RightContainer>
+    )
+  }
 
-function LeftStack({ backedUpBalance, backedUpTokenCount }: { backedUpBalance: number; backedUpTokenCount: number }) {
-  return (
-    <RecoveryStackContainer>
-      <Link href="/" legacyBehavior>
-        <div
-          style={{
-            marginTop: '50px',
-            padding: '10px',
-            alignItems: 'center',
-            fontSize: '24px',
-            color: colors.black,
-            opacity: 0.2,
-            cursor: 'pointer',
-          }}
-        >
-          back
+  if (step === 1) {
+    return (
+      <RightContainer>
+        <div style={{ display: 'flex', height: '100%' }}>
+          <div style={{ alignSelf: 'flex-end' }}>
+            {signers.map((signer, i) => {
+              return <RecoveryAddressCard isSigned={signed.includes(signer)} signer={signer} index={i} key={i} />
+            })}
+            <BackupIdCard />
+          </div>
         </div>
-      </Link>
-      <div
-        style={{
-          padding: '10px',
-          alignItems: 'center',
-          fontSize: '72px',
-          color: colors.black,
-        }}
-      >
-        {backedUpTokenCount} tokens worth ${formatNumber(backedUpBalance)} currently backed up
-      </div>
-      <div
-        style={{
-          padding: '10px',
-          alignItems: 'center',
-          fontSize: '44px',
-          color: colors.blue400,
-          cursor: 'pointer',
-        }}
-      >
-        Start a recovery
-      </div>
-      <div
-        style={{
-          padding: '10px',
-          alignItems: 'center',
-          fontSize: '22px',
-          color: colors.blue400,
-          opacity: 0.4,
-        }}
-      >
-        Share: https://supertokenbackerupper.com
-      </div>
-    </RecoveryStackContainer>
-  )
+      </RightContainer>
+    )
+  }
+
+  return <div />
 }
 
-export default function Recovery() {
-  const [backupData, setBackupData] = useState<any>({})
-  const address = useAccount().address
-  const tokenBalances = useTokenBalances()
-  const [backedUpBalance, setBackedUpBalance] = useState<number>(0)
-  const [backedUpTokenCount, setBackedUpTokenCount] = useState<number>(0)
-  const [signers, setSigners] = useState<string[]>([])
+function StartRecovery({
+  setStep,
+  recoveryData,
+  setRecoveryData,
+}: {
+  setStep: (a: number) => void
+  recoveryData: RecoveryData
+  setRecoveryData: any
+}) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function getData() {
-      if (address && tokenBalances) {
-        const backupData = await getPermitData(address)
-        const permitData = backupData.data.permits[0]
-        setBackupData(permitData)
-        const backedUpTokens = permitData.tokens.map((token: string) => token.toLowerCase())
-        const filteredTokenBalances = tokenBalances.filter((tokenBalance: any) =>
-          backedUpTokens.includes(tokenBalance.token.address.toLowerCase())
-        )
-        setBackedUpTokenCount(filteredTokenBalances.length)
-        const backedUpBalance = filteredTokenBalances.reduce(
-          (sum: number, tokenBalance: any) => tokenBalance.denominatedValue.value + sum,
-          0
-        )
-        setBackedUpBalance(backedUpBalance)
-        setSigners(permitData.recoveryAddresses)
-      }
+  const handleOriginalAddressChange = (address: string) => {
+    setRecoveryData((prev: RecoveryData) => ({
+      ...prev,
+      originalAddress: address,
+    }))
+  }
+
+  const handleRecipientAddressChange = (address: string) => {
+    setRecoveryData((prev: RecoveryData) => ({
+      ...prev,
+      recipientAddress: address,
+    }))
+  }
+
+  const onContinue = async () => {
+    if (
+      !recoveryData.originalAddress ||
+      !validateAndParseAddress(recoveryData.originalAddress) ||
+      !recoveryData.recipientAddress ||
+      !validateAndParseAddress(recoveryData.recipientAddress)
+    )
+      return
+
+    setLoading(true)
+    const backupData = await getPermitData(recoveryData.originalAddress)
+    const permitData = backupData.data.permits[0]
+
+    if (!permitData) {
+      setError('No backups found.')
+      return
     }
-    // Update the document title using the browser API
-    getData()
-  }, [address, tokenBalances])
 
-  if (Object.keys(backupData).length <= 0) {
-    return <RecoveryContainer />
+    const recoveryId = randomWords({ exactly: 5, wordsPerString: 2, separator: '-' })[0]
+
+    setRecoveryData(
+      (prev: RecoveryData) =>
+        ({
+          ...prev,
+          squad: permitData.recoveryAddresses,
+          permittedTokens: permitData.tokens.map((token: string) => token.toLowerCase()),
+          identifier: recoveryId,
+        } as RecoveryData)
+    )
+
+    // generate random words to be used for link
+    await startRecovery(recoveryData.originalAddress, recoveryData.recipientAddress, recoveryId)
+    setStep(1)
   }
 
   return (
-    <RecoveryContainer>
-      <LeftStack backedUpBalance={backedUpBalance} backedUpTokenCount={backedUpTokenCount} />
-      <RightStack signers={signers} />
-    </RecoveryContainer>
+    <LeftContainer>
+      <div style={{ fontSize: '68px' }}>
+        Lost your keys?
+        <br />
+        <span style={{ color: colors.blue400 }}>Start a recovery.</span>
+      </div>
+      <div style={{ display: 'flex', flexFlow: 'column', gap: '12px', flex: 1 }}>
+        <Input
+          title="Original address"
+          onChange={handleOriginalAddressChange}
+          value={recoveryData.originalAddress ?? ''}
+          placeholder="0x123..."
+        />
+        <Input
+          title="New address"
+          onChange={handleRecipientAddressChange}
+          value={recoveryData.recipientAddress ?? ''}
+          placeholder="0x123..."
+        />
+      </div>
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+      <button disabled={!recoveryData.recipientAddress || !recoveryData.originalAddress} onClick={onContinue}>
+        Continue
+      </button>
+    </LeftContainer>
   )
 }
+
+const RecoveryContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  > div {
+    width: 50%;
+    box-sizing: border-box;
+    max-width: 50%;
+    overflow: hidden;
+  }
+
+  overflow: hidden;
+  flex: 1;
+`

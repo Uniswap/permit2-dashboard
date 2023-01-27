@@ -10,6 +10,7 @@ import { publicProvider } from 'wagmi/providers/public'
 import { HeaderNav } from '../components/HeaderNav'
 import { colors } from '../styles/colors'
 import { ApolloClient, ApolloProvider, createHttpLink, from, InMemoryCache } from '@apollo/client'
+import { useRouter } from 'next/router'
 
 const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID
 if (!alchemyId) {
@@ -80,11 +81,10 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 
 function BottomShadow() {
+  const route = useRouter()
   return (
     <BottomShadowContainer>
-      <div>
-        <Card />
-      </div>
+      <div>{route.pathname === '/' && <Card />}</div>
       <div>
         <Card style={{ borderTopRightRadius: 0, right: 0 }} />
       </div>
