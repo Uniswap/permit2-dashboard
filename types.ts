@@ -25,4 +25,5 @@ export type RecoveryData = {
   tokens: string[]
   backupSignature: string | null
   deadline: number | null
+  nonce: string | null
 }

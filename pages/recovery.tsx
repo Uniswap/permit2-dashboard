@@ -25,6 +25,7 @@ const initialRecoveryData = {
   backupSignature: '',
   deadline: null,
   signaturesNeeded: null,
+  nonce: null,
 }
 
 export default function Recovery() {
@@ -244,6 +245,7 @@ function StartRecovery({
           permittedTokens: permitData.tokens.map((token: string) => token.toLowerCase()),
           identifier: recoveryId,
           signaturesNeeded: permitData.recoveryScheme.m,
+          nonce: permitData.nonce,
         } as RecoveryData)
     )
 

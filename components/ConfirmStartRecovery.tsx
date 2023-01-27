@@ -1,5 +1,5 @@
 import { formatNumber } from '@/format'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { colors } from '@/styles/colors'
 import { RecoveryData } from '@/types'
 import styled from '@emotion/styled'
@@ -72,7 +72,8 @@ export function ConfirmStartRecovery({
       !recoveryData.backupSignature ||
       !recoveryData.deadline ||
       !recoveryData.originalAddress ||
-      !recoveryData.recipientAddress
+      !recoveryData.recipientAddress || 
+      !recoveryData.nonce
     ) {
       console.log('soemthings not defined', recoveryData.deadline, recoveryData)
       return
@@ -95,7 +96,7 @@ export function ConfirmStartRecovery({
 
     const permitData = {
       permitted,
-      nonce: BACKUP_NONCE,
+      nonce: recoveryData.nonce,
       deadline: ethers.constants.MaxUint256,
     }
 

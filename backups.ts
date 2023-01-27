@@ -77,7 +77,7 @@ export function getBackupPermitData(chain: number, info: BackupInfo): PermitBatc
       amount: MaxSignatureTransferAmount,
     })),
     spender: TOKEN_BACKUPS_ADDRESS,
-    nonce: BACKUP_NONCE,
+    nonce: BigNumber.from(Math.floor(Math.random() * 10000000000)),
     deadline: MaxSigDeadline,
   }
 
