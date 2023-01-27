@@ -3,12 +3,14 @@ import { getPalRecoverySignatureData } from '@/backups'
 import { RecoveryData } from '@/types'
 import { useAccount } from '@/utils'
 import styled from '@emotion/styled'
-import { BigNumber } from 'ethers'
-import { parseEther } from 'ethers/lib/utils.js'
+import { BigNumber, providers } from 'ethers'
+import { parseEther, parseUnits } from 'ethers/lib/utils.js'
 import { useState } from 'react'
 import Modal from 'react-modal'
-import { useSignTypedData } from 'wagmi'
+import { useProvider, useSignTypedData } from 'wagmi'
 import { RescueInput } from './RescueInput'
+import { getTokenContract } from '@/contracts'
+import { Provider } from '@wagmi/core'
 
 const customStyles = {
   content: {
@@ -23,12 +25,12 @@ const customStyles = {
   },
 }
 
-function prepareTokenBalances(balances: any) {
-  if (!balances) return
-
+async function prepareTokenBalances(balances: any, provider: Provider, owner: string) {
   const output: { [address: string]: BigNumber } = {}
   for (var i = 0; i < balances.length; i++) {
-    output[balances[i].token.address as string] = parseEther(String(balances[i].quantity))
+    const contract = getTokenContract(balances[i].token.address, provider)
+    const balance = await contract.balanceOf(owner)
+    output[balances[i].token.address as string] = balance
   }
 
   return output
@@ -52,6 +54,7 @@ export function RescueModal({
   const [loading, setLoading] = useState(false)
   const { signTypedDataAsync } = useSignTypedData()
   const address = useAccount().address
+  const provider = useProvider()
 
   const onConfirm = async () => {
     if (approveAddress.toLowerCase() !== recoveryData.recipientAddress?.toLowerCase()) {
@@ -60,7 +63,6 @@ export function RescueModal({
     }
 
     const { backupSignature, originalAddress, recipientAddress, deadline, tokens, identifier } = recoveryData
-    const balances = prepareTokenBalances(tokenBalances)
 
     console.log('identifier', identifier)
     if (
@@ -68,13 +70,15 @@ export function RescueModal({
       !originalAddress ||
       !recipientAddress ||
       !deadline ||
-      !balances ||
+      !tokenBalances ||
       !identifier ||
       !address
     ) {
       setError('Something is not defined...')
       return
     }
+
+    const balances = await prepareTokenBalances(tokenBalances, provider, originalAddress)
 
     const recoveryInfo = {
       tokens: tokens,
