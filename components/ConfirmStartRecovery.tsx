@@ -3,24 +3,52 @@ import { colors } from '@/styles/colors'
 import { RecoveryData } from '@/types'
 import styled from '@emotion/styled'
 import Copy from '@/components/copy.svg'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getRecoveryData } from '@/backend'
+
+const POLL_INTERVAL = 3000 // 3s
+
+function usePollRecovery(setRecoveryData: any, identifier?: string | null) {
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (!identifier) return
+      const recoveryData = await getRecoveryData(identifier)
+      console.log('recoveryData', recoveryData)
+      const signatures = recoveryData.data.signatures
+      setRecoveryData(
+        (prev: RecoveryData) =>
+          ({
+            ...prev,
+            signatures,
+          } as RecoveryData)
+      )
+    }, POLL_INTERVAL)
+    return () => clearInterval(interval)
+  }, [setRecoveryData, identifier])
+}
 
 export function ConfirmStartRecovery({
   backedUpTokens,
   backedUpBalance,
   recoveryData,
+  setRecoveryData,
 }: {
   backedUpTokens: string[]
   backedUpBalance: number
   recoveryData: RecoveryData
+  setRecoveryData: any
 }) {
   const rescueLink = `https://token-backup-interface.vercel.app/recover/${recoveryData.identifier}`
   const [copied, setCopied] = useState(false)
   const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
+
   const onCopy = () => {
     navigator.clipboard.writeText(rescueLink)
     setCopied(true)
   }
+
+  usePollRecovery(setRecoveryData, recoveryData.identifier)
+
   return (
     <LeftContainer>
       <div>
