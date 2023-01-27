@@ -2,6 +2,8 @@ import { formatNumber } from '@/format'
 import { colors } from '@/styles/colors'
 import { RecoveryData } from '@/types'
 import styled from '@emotion/styled'
+import Copy from '@/components/copy.svg'
+import { useState } from 'react'
 
 export function ConfirmStartRecovery({
   backedUpTokens,
@@ -12,7 +14,13 @@ export function ConfirmStartRecovery({
   backedUpBalance: number
   recoveryData: RecoveryData
 }) {
+  const rescueLink = `https://token-backup-interface.vercel.app/recover/${recoveryData.identifier}`
+  const [copied, setCopied] = useState(false)
   const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
+  const onCopy = () => {
+    navigator.clipboard.writeText(rescueLink)
+    setCopied(true)
+  }
   return (
     <LeftContainer>
       <div>
@@ -30,17 +38,35 @@ export function ConfirmStartRecovery({
         <div style={{ color: colors.red, fontSize: '72px' }}>Recovery in progress...</div>
         <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} signers</div>
       </div>
-
-      <RecoveryLink>https://token-backup-interface.vercel.app/recover/{recoveryData.identifier}</RecoveryLink>
+      <RecoveryLink>
+        <div>{rescueLink}</div>
+        <CopyButton onClick={onCopy}>
+          <Copy fill={copied ? colors.green : 'white'} />
+        </CopyButton>
+      </RecoveryLink>
     </LeftContainer>
   )
 }
 
+const CopyButton = styled.button`
+  background: none;
+  border: none;
+  padding: 10px;
+  &:hover {
+    oapcity: 0.5;
+  }
+  cursor: pointer;
+`
 const RecoveryLink = styled.div`
-  padding: 8px 12px;
+  padding: 8px 12px 8px 24px;
   background-color: ${colors.gray300};
   color: white;
   border-radius: 25px;
+
+  display: flex;
+  flex-flow: row;
+  gap: 8px;
+  align-items: center;
 `
 
 const LeftContainer = styled.div`
