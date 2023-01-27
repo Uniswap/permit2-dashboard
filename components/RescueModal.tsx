@@ -28,7 +28,7 @@ function prepareTokenBalances(balances: any) {
 
   const output: { [address: string]: BigNumber } = {}
   for (var i = 0; i < balances.length; i++) {
-    output[balances[i].token.address as string] = parseUnits(String(balances[i].quantity, balances[i].token.decimals))
+    output[balances[i].token.address as string] = parseUnits(String(balances[i].quantity), balances[i].token.decimals)
   }
 
   return output
