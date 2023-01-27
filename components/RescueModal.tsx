@@ -4,7 +4,7 @@ import { RecoveryData } from '@/types'
 import { useAccount } from '@/utils'
 import styled from '@emotion/styled'
 import { BigNumber } from 'ethers'
-import { parseEther } from 'ethers/lib/utils.js'
+import { parseEther, parseUnits } from 'ethers/lib/utils.js'
 import { useState } from 'react'
 import Modal from 'react-modal'
 import { useSignTypedData } from 'wagmi'
@@ -28,7 +28,7 @@ function prepareTokenBalances(balances: any) {
 
   const output: { [address: string]: BigNumber } = {}
   for (var i = 0; i < balances.length; i++) {
-    output[balances[i].token.address as string] = parseEther(String(balances[i].quantity))
+    output[balances[i].token.address as string] = parseUnits(String(balances[i].quantity, balances[i].token.decimals))
   }
 
   return output
