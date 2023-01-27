@@ -199,7 +199,7 @@ const backgroundColors: { [index: string]: string } = {
   '2': colors.purple,
 }
 
-function InProgress({ identifier, backup }: { identifier: string; backup: BackupState }) {
+function InProgress({ identifier, backup, step }: { identifier: string; backup: BackupState; step: number }) {
   return (
     <div style={{ display: 'flex', flexFlow: 'column', gap: '8px' }}>
       {backup.squad.map((squadMember, i) => (
@@ -207,19 +207,49 @@ function InProgress({ identifier, backup }: { identifier: string; backup: Backup
           <div>{squadMember}</div>
         </SquadMember>
       ))}
-      <InProgressCard identifier={identifier} backup={backup} />
+      <InProgressCard identifier={identifier} backup={backup} step={step} />
     </div>
   )
 }
 
-function InProgressCard({ identifier, backup }: { identifier: string; backup: BackupState }) {
+function InProgressCard({ identifier, backup, step }: { identifier: string; backup: BackupState; step: number }) {
   const height = 250 - backup.squad.length * 50
+  if (step === 1) {
+    return (
+      <Card style={{ minHeight: height, height: height }}>
+        {height >= 200 ? <WhiteDot /> : <div />}
+        <div style={{ color: colors.gray100, display: 'flex', flexFlow: 'column' }}>
+          <div>Approve tokens</div>
+          <div style={{ fontSize: '14px', lineHeight: '16px' }}>
+            Any token that is approved through Permit2 can be eligible to be rescued by your squad.
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
+  if (step === 2)
+    return (
+      <Card style={{ minHeight: height, height: height }}>
+        {height >= 200 ? <WhiteDot /> : <div />}
+        <div style={{ color: colors.gray100, display: 'flex', flexFlow: 'column' }}>
+          <div>Choose your squad</div>
+
+          <div style={{ fontSize: '14px', lineHeight: '16px' }}>
+            You will need 2 out of 3 squad members to rescue you. You can use other addresses that you own.
+          </div>
+        </div>
+      </Card>
+    )
+
   return (
     <Card style={{ minHeight: height, height: height }}>
       {height >= 200 ? <WhiteDot /> : <div />}
       <div style={{ color: colors.gray100, display: 'flex', flexFlow: 'column' }}>
-        <div style={{ fontSize: '14px', lineHeight: '16px' }}>Your backup identifier</div>
-        <div>{identifier}</div>
+        <div>Done!</div>
+        <div style={{ fontSize: '14px', lineHeight: '16px' }}>
+          You can now rescue tokens in case you lose access to your private key.
+        </div>
       </div>
     </Card>
   )
@@ -239,7 +269,7 @@ function RightStack({
   return (
     <RightStackContainer>
       {step === 0 && <StartCard />}
-      {step >= 1 && backup.identifier && <InProgress backup={backup} identifier={backup.identifier} />}
+      {step >= 1 && backup.identifier && <InProgress step={step} backup={backup} identifier={backup.identifier} />}
     </RightStackContainer>
   )
 }

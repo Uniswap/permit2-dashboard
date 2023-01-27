@@ -13,6 +13,7 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@next/font": "13.1.5",
+    "@svgr/webpack": "^6.5.1",
     "@typechain/ethers-v5": "^10.2.0",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",

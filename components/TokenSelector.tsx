@@ -49,10 +49,7 @@ export function TokenSelector({
   return (
     <Container>
       <Back setStep={setStep} />
-      <StepTitle
-        index={1}
-        title={`Allow tokens to be backed up (Total value: ${formatNumber(approvedValue, NumberType.FiatTokenPrice)})`}
-      />
+      <div>Total approved value: {formatNumber(approvedValue, NumberType.FiatTokenPrice)}</div>
       <Tokens tokenBalances={tokenBalances} permit2Approvals={permit2Approvals} />
       <button onClick={onContinue} disabled={!tokenBalances?.length}>
         Continue
