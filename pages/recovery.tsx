@@ -22,6 +22,8 @@ const initialRecoveryData = {
   backedUpTokenValue: 0,
   identifier: null,
   tokens: [],
+  backupSignature: '',
+  deadline: null,
 }
 
 export default function Recovery() {
