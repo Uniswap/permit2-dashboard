@@ -15,7 +15,7 @@ const initialRecoveryData = {
   originalAddress: null,
   recipientAddress: null,
   status: 'pending',
-  signatures: {},
+  signatures: [],
   squad: [],
   permittedTokens: [],
   backedUpTokenCount: 0,
@@ -47,6 +47,7 @@ export default function Recovery() {
         backedUpBalance={backedUpBalance}
         recoveryData={recoveryData}
         setRecoveryData={setRecoveryData}
+        filteredTokenBalances={filteredTokenBalances}
       />
       <Right step={step} signers={recoveryData.squad} signed={Object.keys(recoveryData.signatures)} />
     </RecoveryContainer>
@@ -60,6 +61,7 @@ function Left({
   setRecoveryData,
   backedUpTokens,
   backedUpBalance,
+  filteredTokenBalances
 }: {
   step: number
   setStep: (newStep: number) => void
@@ -67,6 +69,7 @@ function Left({
   setRecoveryData: any
   backedUpTokens: string[]
   backedUpBalance: number
+  filteredTokenBalances: any
 }) {
   if (step === 0) {
     return <StartRecovery setStep={setStep} recoveryData={recoveryData} setRecoveryData={setRecoveryData} />
@@ -79,6 +82,7 @@ function Left({
         recoveryData={recoveryData}
         backedUpBalance={backedUpBalance}
         backedUpTokens={backedUpTokens}
+        filteredTokenBalances={filteredTokenBalances}
       />
     )
   }

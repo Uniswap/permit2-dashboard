@@ -16,7 +16,7 @@ const initialRecoveryData = {
   originalAddress: null,
   recipientAddress: null,
   status: 'pending',
-  signatures: {},
+  signatures: [],
   squad: [],
   permittedTokens: [],
   backedUpTokenCount: 0,
