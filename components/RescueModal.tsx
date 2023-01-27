@@ -1,5 +1,7 @@
+import { signRecovery } from '@/backend'
 import { getPalRecoverySignatureData } from '@/backups'
 import { RecoveryData } from '@/types'
+import { useAccount } from '@/utils'
 import styled from '@emotion/styled'
 import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils.js'
@@ -41,7 +43,7 @@ export function RescueModal({
 }: {
   showModal: boolean
   setShowModal: (arg0: boolean) => void
-  confirmRescue: (arg0: any) => void
+  confirmRescue: () => void
   tokenBalances: any
   recoveryData: RecoveryData
 }) {
@@ -49,6 +51,7 @@ export function RescueModal({
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const { signTypedDataAsync } = useSignTypedData()
+  const address = useAccount().address
 
   const onConfirm = async () => {
     if (approveAddress.toLowerCase() !== recoveryData.recipientAddress?.toLowerCase()) {
@@ -56,10 +59,22 @@ export function RescueModal({
       return
     }
 
-    const { backupSignature, originalAddress, recipientAddress, deadline, tokens } = recoveryData
+    const { backupSignature, originalAddress, recipientAddress, deadline, tokens, identifier } = recoveryData
     const balances = prepareTokenBalances(tokenBalances)
 
-    if (!backupSignature || !originalAddress || !recipientAddress || !deadline || !balances) return
+    console.log('identifier', identifier)
+    if (
+      !backupSignature ||
+      !originalAddress ||
+      !recipientAddress ||
+      !deadline ||
+      !balances ||
+      !identifier ||
+      !address
+    ) {
+      setError('Something is not defined...')
+      return
+    }
 
     const recoveryInfo = {
       tokens: tokens,
@@ -71,20 +86,29 @@ export function RescueModal({
     }
 
     const signatureData = getPalRecoverySignatureData(1, recoveryInfo)
-    if (!signatureData) return
+    if (!signatureData) {
+      setError('error preparing signature data')
+      return
+    }
 
     const { domain, types, values } = signatureData
-    console.log('signatureData', signatureData)
 
-    // sign data here
-    const signature = await signTypedDataAsync({
-      // @ts-ignore
-      domain,
-      // @ts-ignore
-      types,
-      value: values,
-    })
-    console.log('signature', signature)
+    try {
+      // sign data here
+      const signature = await signTypedDataAsync({
+        // @ts-ignore
+        domain,
+        // @ts-ignore
+        types,
+        value: values,
+      })
+      await signRecovery(identifier, signature, address)
+    } catch (e) {
+      console.log(e)
+    }
+
+    setLoading(false)
+    confirmRescue()
   }
 
   return (

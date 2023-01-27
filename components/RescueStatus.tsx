@@ -28,11 +28,9 @@ export function RescueStatus({
         <div style={{ fontSize: '40px', paddingBottom: '5px' }}>Waiting for {signaturesLeft} signers</div>
         <button
           style={{
-            fontSize: '17px',
-            color: colors.blue400,
+            fontSize: '24px',
             maxWidth: '435px',
             cursor: 'pointer',
-            textOverflow: 'ellipsis',
             fontFamily: 'Replica',
           }}
           onClick={() => setShowModal(!showModal)}

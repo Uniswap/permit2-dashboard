@@ -5,11 +5,10 @@ import styled from '@emotion/styled'
 import Copy from '@/components/copy.svg'
 import { useEffect, useState } from 'react'
 import { getRecoveryData } from '@/backend'
-import { useRouter } from 'next/router'
 
 const POLL_INTERVAL = 3000 // 3s
 
-function usePollRecovery(setRecoveryData: any, identifier?: string | null) {
+export function usePollRecovery(setRecoveryData: any, identifier?: string | null) {
   useEffect(() => {
     const interval = setInterval(async () => {
       if (!identifier) return
@@ -38,9 +37,7 @@ export function ConfirmStartRecovery({
   recoveryData: RecoveryData
   setRecoveryData: any
 }) {
-  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : ''
-  const rescueLink = `${origin}/rescue/${recoveryData.identifier}`
-  
+  const rescueLink = `https://token-backup-interface.vercel.app/rescue/${recoveryData.identifier}`
   const [copied, setCopied] = useState(false)
   const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
 

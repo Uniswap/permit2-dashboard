@@ -10,6 +10,7 @@ import { useAccount } from '@/utils'
 import { RescueStatus } from '@/components/RescueStatus'
 import { RescueModal } from '@/components/RescueModal'
 import { useTokenBalances } from '..'
+import { usePollRecovery } from '@/components/ConfirmStartRecovery'
 
 const initialRecoveryData = {
   originalAddress: null,
@@ -33,8 +34,10 @@ export default function Rescue() {
   const { id } = router.query
 
   const confirmRescue = () => {
-    console.log('rescue')
+    setShowModal(false)
   }
+
+  usePollRecovery(setRecoveryData, id as string)
 
   const tokenBalances = useTokenBalances(recoveryData.originalAddress, 1)
 
@@ -55,6 +58,7 @@ export default function Rescue() {
           signatures: fetchedRecoveryData.signatures,
           recipientAddress: fetchedRecoveryData.recipientAddress,
           deadline: fetchedRecoveryData.deadline,
+          identifier: id,
         }))
       }
     }
@@ -64,6 +68,14 @@ export default function Rescue() {
   if (!recoveryData.squad || !address || !id) {
     return <RecoveryContainer />
   }
+
+  // if (!recoveryData.squad.includes(address)) {
+  //   return (
+  //     <RecoveryContainer>
+  //       <div style={{ padding: '48px', fontSize: '32px' }}>Please connect as a valid squad member.</div>
+  //     </RecoveryContainer>
+  //   )
+  // }
 
   return (
     <RecoveryContainer>
