@@ -21,6 +21,8 @@ const initialRecoveryData = {
   backedUpTokenCount: 0,
   backedUpTokenValue: 0,
   identifier: null,
+  backupSignature: null,
+  deadline: null,
 }
 
 export default function Rescue() {
@@ -52,6 +54,7 @@ export default function Rescue() {
           originalAddress: fetchedRecoveryData.owner,
           signatures: fetchedRecoveryData.signatures,
           recipientAddress: fetchedRecoveryData.recipientAddress,
+          deadline: fetchedRecoveryData.deadline,
         }))
       }
     }
@@ -66,10 +69,10 @@ export default function Rescue() {
     <RecoveryContainer>
       <RescueModal
         tokenBalances={tokenBalances}
-        recipientAddress={recoveryData.recipientAddress}
         showModal={showModal}
         setShowModal={setShowModal}
         confirmRescue={confirmRescue}
+        recoveryData={recoveryData}
       />
       <Left recoveryData={recoveryData} showModal={showModal} setShowModal={setShowModal} />
       <Right signers={recoveryData.squad} signed={Object.keys(recoveryData.signatures)} id={(id as string) ?? ''} />

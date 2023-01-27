@@ -1,8 +1,11 @@
+import { getPalRecoverySignatureData } from '@/backups'
+import { RecoveryData } from '@/types'
 import styled from '@emotion/styled'
 import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils.js'
 import { useState } from 'react'
 import Modal from 'react-modal'
+import { useSignTypedData } from 'wagmi'
 import { RescueInput } from './RescueInput'
 
 const customStyles = {
@@ -33,29 +36,55 @@ export function RescueModal({
   showModal,
   setShowModal,
   confirmRescue,
-  recipientAddress,
   tokenBalances,
+  recoveryData,
 }: {
   showModal: boolean
   setShowModal: (arg0: boolean) => void
   confirmRescue: (arg0: any) => void
-  recipientAddress: string
   tokenBalances: any
+  recoveryData: RecoveryData
 }) {
   const [approveAddress, setApproveAddress] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const balances = prepareTokenBalances(tokenBalances)
-
-  console.log('balances', balances)
+  const { signTypedDataAsync } = useSignTypedData()
 
   const onConfirm = async () => {
-    if (approveAddress.toLowerCase() !== recipientAddress.toLowerCase()) {
+    if (approveAddress.toLowerCase() !== recoveryData.recipientAddress?.toLowerCase()) {
       setError('Wrong recipient address!')
       return
     }
 
+    const { backupSignature, originalAddress, recipientAddress, deadline, tokens } = recoveryData
+    const balances = prepareTokenBalances(tokenBalances)
+
+    if (!backupSignature || !originalAddress || !recipientAddress || !deadline || !balances) return
+
+    const recoveryInfo = {
+      tokens: tokens,
+      backupSignature: backupSignature,
+      owner: originalAddress,
+      recipient: recipientAddress,
+      deadline: deadline,
+      balances,
+    }
+
+    const signatureData = getPalRecoverySignatureData(1, recoveryInfo)
+    if (!signatureData) return
+
+    const { domain, types, values } = signatureData
+    console.log('signatureData', signatureData)
+
     // sign data here
+    const signature = await signTypedDataAsync({
+      // @ts-ignore
+      domain,
+      // @ts-ignore
+      types,
+      value: values,
+    })
+    console.log('signature', signature)
   }
 
   return (
@@ -76,7 +105,7 @@ export function RescueModal({
         <button style={{ color: '#888FAB', cursor: 'pointer' }} onClick={() => setShowModal(false)}>
           Cancel
         </button>
-        <button style={{ color: '#4C82FB', cursor: 'pointer' }} onClick={confirmRescue}>
+        <button style={{ color: '#4C82FB', cursor: 'pointer' }} onClick={onConfirm}>
           {loading ? 'Sign in wallet...' : 'Confirm'}
         </button>
       </ModalButtons>

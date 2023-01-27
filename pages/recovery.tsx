@@ -21,6 +21,7 @@ const initialRecoveryData = {
   backedUpTokenCount: 0,
   backedUpTokenValue: 0,
   identifier: null,
+  tokens: [],
 }
 
 export default function Recovery() {
