@@ -5,12 +5,19 @@ export type BackupState = {
   identifier: string | null // random 2 word string like "loquacious-fox" that acts as an id for this backup
 }
 
+export type Pal = {
+  signature: string 
+  address: string 
+  deadline: string 
+}
+
 export type RecoveryData = {
   originalAddress: string | null
   recipientAddress: string | null
   status: string
-  signatures: { [address: string]: string }
+  signatures: Pal[]
   squad: string[]
+  signaturesNeeded: number | null
   backedUpTokenCount: number
   backedUpTokenValue: number
   permittedTokens: string[]

@@ -1,10 +1,14 @@
 import { formatNumber } from '@/format'
+import { ethers } from 'ethers'
 import { colors } from '@/styles/colors'
 import { RecoveryData } from '@/types'
 import styled from '@emotion/styled'
 import Copy from '@/components/copy.svg'
 import { useEffect, useState } from 'react'
 import { getRecoveryData } from '@/backend'
+import { getTokenBackups } from '@/contracts'
+import { BACKUP_NONCE } from '@/backups';
+import { useSigner } from 'wagmi'
 
 const POLL_INTERVAL = 3000 // 3s
 
@@ -31,19 +35,108 @@ export function ConfirmStartRecovery({
   backedUpBalance,
   recoveryData,
   setRecoveryData,
+  filteredTokenBalances,
 }: {
   backedUpTokens: string[]
   backedUpBalance: number
   recoveryData: RecoveryData
   setRecoveryData: any
+  filteredTokenBalances: any
 }) {
+  const { data: signer } = useSigner()
   const rescueLink = `https://token-backup-interface.vercel.app/rescue/${recoveryData.identifier}`
   const [copied, setCopied] = useState(false)
-  const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
+  const signaturesLeft = Math.max(
+    0,
+    (recoveryData.signaturesNeeded ?? 0) - Object.keys(recoveryData.signatures ?? {}).length
+  )
+
+  useEffect(() => {
+    async function getData() {
+      const res = await getRecoveryData(recoveryData.identifier ?? '')
+      setRecoveryData((data: RecoveryData) => ({ ...data, deadline: res.data.deadline }))
+    }
+
+    getData()
+  }, [recoveryData.identifier, setRecoveryData])
 
   const onCopy = () => {
     navigator.clipboard.writeText(rescueLink)
     setCopied(true)
+  }
+
+  const onRecover = async () => {
+    if (
+      !signer ||
+      !recoveryData.backupSignature ||
+      !recoveryData.deadline ||
+      !recoveryData.originalAddress ||
+      !recoveryData.recipientAddress
+    ) {
+      console.log('soemthings not defined', recoveryData.deadline, recoveryData)
+      return
+    }
+
+    console.log('here 1')
+    const contract = getTokenBackups(signer)
+    console.log('here 2')
+
+    const pals = recoveryData.signatures.map((pal) => ({
+      sig: pal.signature,
+      addr: pal.address,
+      sigDeadline: recoveryData.deadline ?? '1',
+    }))
+    console.log('here 3')
+
+    const permitted = recoveryData.permittedTokens.map((token) => {
+      return {
+        token,
+        amount: ethers.constants.MaxUint256,
+      }
+    })
+    console.log('here 4')
+
+    const permitData = {
+      permitted,
+      nonce: BACKUP_NONCE,
+      deadline: recoveryData.deadline,
+    }
+
+    console.log('here 5')
+
+    const recoveryInfo = {
+      oldAddress: recoveryData.originalAddress,
+      transferDetails: permitted
+        .map((permittedToken) => {
+          let balance = ethers.utils.parseEther('0')
+          for (const tokenBalanceData of filteredTokenBalances) {
+            console.log(tokenBalanceData.token.address, permittedToken?.token)
+            if (tokenBalanceData.token.address.toLowerCase() === permittedToken?.token.toLowerCase()) {
+              console.log('tokenBalanceData', tokenBalanceData)
+              balance = ethers.utils.parseUnits(String(tokenBalanceData.quantity))
+            }
+          }
+          console.log('here 6')
+
+          return {
+            to: recoveryData.recipientAddress || '',
+            requestedAmount: balance,
+          }
+        })
+        .filter(Boolean),
+    }
+
+    console.log('here 7')
+    const witnessData = {
+      signers: recoveryData.signatures.map((pal) => pal.address),
+      threshold: 2,
+    }
+
+    console.log('here 8')
+    console.log(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData)
+
+    const res = await contract.recover(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData)
+    console.log(res)
   }
 
   usePollRecovery(setRecoveryData, recoveryData.identifier)
@@ -62,9 +155,13 @@ export function ConfirmStartRecovery({
           gap: '12px',
         }}
       >
-        <div style={{ color: colors.red, fontSize: '72px' }}>Recovery in progress...</div>
-        <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} signers</div>
+        <div style={{ color: colors.red, fontSize: '72px' }}>
+          {signaturesLeft === 0 ? 'You got the sigs!' : 'Recovery in progress...'}
+        </div>
+        {signaturesLeft > 0 && <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} signers</div>}
+        {signaturesLeft === 0 && <button onClick={onRecover}>Recover</button>}
       </div>
+
       <RecoveryLink>
         <div>{rescueLink}</div>
         <CopyButton onClick={onCopy}>

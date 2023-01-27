@@ -16,7 +16,7 @@ const initialRecoveryData = {
   originalAddress: null,
   recipientAddress: null,
   status: 'pending',
-  signatures: {},
+  signatures: [],
   squad: [],
   permittedTokens: [],
   backedUpTokenCount: 0,
@@ -58,8 +58,9 @@ export default function Rescue() {
           signatures: fetchedRecoveryData.signatures,
           recipientAddress: fetchedRecoveryData.recipientAddress,
           deadline: fetchedRecoveryData.deadline,
+          signaturesNeeded: fetchedRecoveryData.recoveryScheme.m,
           identifier: id,
-        }))
+        } as RecoveryData))
       }
     }
     getData()
