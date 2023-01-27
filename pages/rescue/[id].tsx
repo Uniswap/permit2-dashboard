@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import { useAccount } from '@/utils'
 import { RescueStatus } from '@/components/RescueStatus'
 import { RescueModal } from '@/components/RescueModal'
+import { useTokenBalances } from '..'
 
 const initialRecoveryData = {
   originalAddress: null,
@@ -33,18 +34,21 @@ export default function Rescue() {
     console.log('rescue')
   }
 
+  const tokenBalances = useTokenBalances(recoveryData.originalAddress, 1)
+
   useEffect(() => {
     async function getData() {
       if (address && id) {
         const request = await getRecoveryData(id as string)
         const fetchedRecoveryData = request.data
-        
-        setRecoveryData({
-          ...recoveryData,
+
+        setRecoveryData((prev: RecoveryData) => ({
+          ...prev,
           squad: fetchedRecoveryData.recoveryAddresses,
+          originalAddress: fetchedRecoveryData.owner,
           signatures: fetchedRecoveryData.signatures,
           recipientAddress: fetchedRecoveryData.recipientAddress,
-        })
+        }))
       }
     }
     getData()
@@ -56,7 +60,13 @@ export default function Rescue() {
 
   return (
     <RecoveryContainer>
-      <RescueModal showModal={showModal} setShowModal={setShowModal} confirmRescue={confirmRescue} />
+      <RescueModal
+        tokenBalances={tokenBalances}
+        recipientAddress={recoveryData.recipientAddress}
+        showModal={showModal}
+        setShowModal={setShowModal}
+        confirmRescue={confirmRescue}
+      />
       <Left recoveryData={recoveryData} showModal={showModal} setShowModal={setShowModal} />
       <Right signers={recoveryData.squad} signed={Object.keys(recoveryData.signatures)} id={(id as string) ?? ''} />
     </RecoveryContainer>
