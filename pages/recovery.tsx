@@ -49,11 +49,7 @@ export default function Recovery() {
         setRecoveryData={setRecoveryData}
         filteredTokenBalances={filteredTokenBalances}
       />
-      <Right
-        step={step}
-        signers={recoveryData.squad}
-        signed={recoveryData.signatures.map(({ signature }) => signature)}
-      />
+      <Right step={step} signers={recoveryData.squad} signed={recoveryData.signatures.map(({ address }) => address)} />
     </RecoveryContainer>
   )
 }
