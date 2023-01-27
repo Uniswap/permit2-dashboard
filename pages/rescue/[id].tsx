@@ -88,7 +88,7 @@ export default function Rescue() {
         recoveryData={recoveryData}
       />
       <Left recoveryData={recoveryData} showModal={showModal} setShowModal={setShowModal} />
-      <Right signers={recoveryData.squad} signed={Object.keys(recoveryData.signatures)} id={(id as string) ?? ''} />
+      <Right signers={recoveryData.squad} signed={recoveryData.signatures.map(({ address }: any) => address)} id={(id as string) ?? ''} />
     </RecoveryContainer>
   )
 }
