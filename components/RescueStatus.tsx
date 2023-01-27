@@ -11,7 +11,10 @@ export function RescueStatus({
   showModal: boolean
   setShowModal: (arg0: boolean) => void
 }) {
-  const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
+  const signaturesLeft = Math.max(
+    0,
+    (recoveryData.signaturesNeeded ?? 0) - Object.keys(recoveryData.signatures ?? {}).length
+  )
 
   return (
     <LeftContainer>
@@ -24,8 +27,14 @@ export function RescueStatus({
           gap: '12px',
         }}
       >
-        <div style={{ color: colors.red, fontSize: '72px' }}>Recovery in progress...</div>
-        <div style={{ fontSize: '40px', paddingBottom: '5px' }}>Waiting for {signaturesLeft} signers</div>
+        <div style={{ color: colors.red, fontSize: '72px' }}>
+          {signaturesLeft === 0 ? 'We got the sigs!' : 'Recovery in progress...'}
+        </div>
+        {signaturesLeft > 0 && (
+          <div style={{ fontSize: '40px' }}>
+            Waiting for {signaturesLeft} {signaturesLeft == 1 ? 'signer' : 'signers'}
+          </div>
+        )}
         <button
           style={{
             fontSize: '24px',

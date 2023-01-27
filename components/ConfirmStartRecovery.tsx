@@ -147,7 +147,7 @@ export function ConfirmStartRecovery({
         <div style={{ color: colors.red, fontSize: '72px' }}>
           {signaturesLeft === 0 ? 'You got the sigs!' : 'Recovery in progress...'}
         </div>
-        {signaturesLeft > 0 && <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} signers</div>}
+        {signaturesLeft > 0 && <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} {signaturesLeft == 1 ? 'signer' : 'signers'}</div>}
         {signaturesLeft === 0 && <button onClick={onRecover}>Recover</button>}
       </div>
 
