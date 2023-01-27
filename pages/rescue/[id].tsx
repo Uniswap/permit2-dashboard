@@ -34,7 +34,7 @@ export default function Rescue() {
     console.log('rescue')
   }
 
-  const tokenBalances = useTokenBalances(recoveryData.owner, 1)
+  const tokenBalances = useTokenBalances(recoveryData.originalAddress, 1)
 
   useEffect(() => {
     async function getData() {

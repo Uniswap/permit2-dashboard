@@ -19,8 +19,10 @@ const customStyles = {
 }
 
 function prepareTokenBalances(balances: any) {
+  if (!balances) return
+
   const output: { [address: string]: BigNumber } = {}
-  for (var i = 0; i < balances.tokens.length; i++) {
+  for (var i = 0; i < balances.length; i++) {
     output[balances[i].token.address as string] = parseEther(String(balances[i].quantity))
   }
 
@@ -43,6 +45,9 @@ export function RescueModal({
   const [approveAddress, setApproveAddress] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const balances = prepareTokenBalances(tokenBalances)
+
+  console.log('balances', balances)
 
   const onConfirm = async () => {
     if (approveAddress.toLowerCase() !== recipientAddress.toLowerCase()) {
@@ -50,7 +55,6 @@ export function RescueModal({
       return
     }
 
-    const balances = prepareTokenBalances(tokenBalances)
     // sign data here
   }
 
