@@ -59,6 +59,7 @@ export default function Rescue() {
           recipientAddress: fetchedRecoveryData.recipientAddress,
           deadline: fetchedRecoveryData.deadline,
           signaturesNeeded: fetchedRecoveryData.recoveryScheme.m,
+          nonce: fetchedPermitData.nonce,
           identifier: id,
         } as RecoveryData))
       }
