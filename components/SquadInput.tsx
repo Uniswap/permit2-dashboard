@@ -74,7 +74,6 @@ export function SquadInput({
   return (
     <Container>
       <Back setStep={setStep} />
-      <StepTitle index={2} title="Choose 3 wallets to act as your backup squad." />
       <Input
         title="Squad member 1"
         onChange={onChangeSquadMember(0)}
