@@ -16,7 +16,7 @@ const WITNESS_TYPES = {
 }
 
 const PAL_SIGNATURE_TYPES = {
-  PalSignature: [
+  RecoveryInfo: [
     { name: 'oldAddress', type: 'address' },
     { name: 'sigDeadline', type: 'uint256' },
     { name: 'details', type: 'SignatureTransferDetails[]' },
