@@ -28,7 +28,7 @@ const PAL_SIGNATURE_TYPES = {
 }
 
 const PERMIT2_ADDRESS = '0x000000000022d473030f116ddee9f6b43ac78ba3'
-// TODO: this is a placeholder address
+
 export const TOKEN_BACKUPS_ADDRESS = '0xc6dd15D910E7F464c7dC714A774754DA69606514'
 // nonce doesnt really matter, just has to be unique 256 bits
 export const BACKUP_NONCE = BigNumber.from('6969696969696969696969696969696969696969420')

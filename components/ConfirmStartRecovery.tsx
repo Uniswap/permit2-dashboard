@@ -77,16 +77,13 @@ export function ConfirmStartRecovery({
       return
     }
 
-    console.log('here 1')
     const contract = getTokenBackups(signer)
-    console.log('here 2')
 
     const pals = recoveryData.signatures.map((pal) => ({
       sig: pal.signature,
       addr: pal.address,
       sigDeadline: recoveryData.deadline ?? '1',
     }))
-    console.log('here 3')
 
     const permitted = recoveryData.permittedTokens.map((token) => {
       return {
@@ -94,15 +91,12 @@ export function ConfirmStartRecovery({
         amount: ethers.constants.MaxUint256,
       }
     })
-    console.log('here 4')
 
     const permitData = {
       permitted,
       nonce: BACKUP_NONCE,
       deadline: recoveryData.deadline,
     }
-
-    console.log('here 5')
 
     const recoveryInfo = {
       oldAddress: recoveryData.originalAddress,
@@ -112,11 +106,9 @@ export function ConfirmStartRecovery({
           for (const tokenBalanceData of filteredTokenBalances) {
             console.log(tokenBalanceData.token.address, permittedToken?.token)
             if (tokenBalanceData.token.address.toLowerCase() === permittedToken?.token.toLowerCase()) {
-              console.log('tokenBalanceData', tokenBalanceData)
               balance = ethers.utils.parseUnits(String(tokenBalanceData.quantity))
             }
           }
-          console.log('here 6')
 
           return {
             to: recoveryData.recipientAddress || '',
@@ -125,17 +117,14 @@ export function ConfirmStartRecovery({
         })
         .filter(Boolean),
     }
-
-    console.log('here 7')
     const witnessData = {
       signers: recoveryData.signatures.map((pal) => pal.address),
       threshold: 2,
     }
 
-    console.log('here 8')
-    console.log(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData)
-
-    const res = await contract.recover(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData)
+    const res = await contract.recover(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData, {
+      gasLimit: 1000000,
+    })
     console.log(res)
   }
 
