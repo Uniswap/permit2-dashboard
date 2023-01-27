@@ -97,10 +97,11 @@ export function getPalRecoverySignatureData(chain: number, info: RecoveryInfo): 
 
   console.log(info.tokens)
   const details = info.tokens.map((token) => ({
-    to: info.recipient,
+    to: info.owner,
     requestedAmount: info.balances[token],
   }))
   console.log(details)
+  console.log('domain', tokenBackupsDomain(TOKEN_BACKUPS_ADDRESS, chain))
 
   return {
   domain: tokenBackupsDomain(TOKEN_BACKUPS_ADDRESS, chain),
