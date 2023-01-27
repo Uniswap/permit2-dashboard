@@ -6,9 +6,9 @@ import styled from '@emotion/styled'
 import Copy from '@/components/copy.svg'
 import { useEffect, useState } from 'react'
 import { getRecoveryData } from '@/backend'
-import { getTokenBackups } from '@/contracts'
-import { BACKUP_NONCE } from '@/backups';
-import { useSigner } from 'wagmi'
+import { getTokenBackups, getTokenContract } from '@/contracts'
+import { BACKUP_NONCE } from '@/backups'
+import { useProvider, useSigner } from 'wagmi'
 
 const POLL_INTERVAL = 3000 // 3s
 
@@ -44,6 +44,7 @@ export function ConfirmStartRecovery({
   filteredTokenBalances: any
 }) {
   const { data: signer } = useSigner()
+  const provider = useProvider()
   const rescueLink = `https://token-backup-interface.vercel.app/rescue/${recoveryData.identifier}`
   const [copied, setCopied] = useState(false)
   const signaturesLeft = Math.max(
@@ -98,25 +99,22 @@ export function ConfirmStartRecovery({
       deadline: ethers.constants.MaxUint256,
     }
 
+    const transferDetails = []
+    for (var i = 0; i < permitted.length; i++) {
+      const token = permitted[i]
+      const contract = getTokenContract(token.token, provider)
+      const balance = await contract.balanceOf(recoveryData.originalAddress)
+      transferDetails[i] = {
+        to: recoveryData.recipientAddress,
+        requestedAmount: balance,
+      }
+    }
+
     const recoveryInfo = {
       oldAddress: recoveryData.originalAddress,
-      transferDetails: permitted
-        .map((permittedToken) => {
-          let balance = ethers.utils.parseEther('0')
-          for (const tokenBalanceData of filteredTokenBalances) {
-            console.log(tokenBalanceData.token.address, permittedToken?.token)
-            if (tokenBalanceData.token.address.toLowerCase() === permittedToken?.token.toLowerCase()) {
-              balance = ethers.utils.parseUnits(String(tokenBalanceData.quantity), tokenBalanceData.token.decimals)
-            }
-          }
-
-          return {
-            to: recoveryData.recipientAddress || '',
-            requestedAmount: balance,
-          }
-        })
-        .filter(Boolean),
+      transferDetails,
     }
+
     const witnessData = {
       signers: recoveryData.squad,
       threshold: 2,
