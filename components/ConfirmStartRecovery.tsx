@@ -5,6 +5,8 @@ import styled from '@emotion/styled'
 import Copy from '@/components/copy.svg'
 import { useEffect, useState } from 'react'
 import { getRecoveryData } from '@/backend'
+import { getTokenBackups } from '@/contracts'
+import { useSigner } from 'wagmi'
 
 const POLL_INTERVAL = 3000 // 3s
 
@@ -37,13 +39,26 @@ export function ConfirmStartRecovery({
   recoveryData: RecoveryData
   setRecoveryData: any
 }) {
+  const { data: signer } = useSigner()
   const rescueLink = `https://token-backup-interface.vercel.app/rescue/${recoveryData.identifier}`
   const [copied, setCopied] = useState(false)
-  const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
+  const signaturesLeft = Math.max(
+    0,
+    (recoveryData.signaturesNeeded ?? 0) - Object.keys(recoveryData.signatures ?? {}).length
+  )
 
   const onCopy = () => {
     navigator.clipboard.writeText(rescueLink)
     setCopied(true)
+  }
+
+  const onRecover = async () => {
+    if (!signer) return
+
+    const contract = getTokenBackups(signer)
+
+    const pals = recoveryData.signatures.map(pal => ({ }))
+    const res = await contract.recover()
   }
 
   usePollRecovery(setRecoveryData, recoveryData.identifier)
@@ -62,9 +77,13 @@ export function ConfirmStartRecovery({
           gap: '12px',
         }}
       >
-        <div style={{ color: colors.red, fontSize: '72px' }}>Recovery in progress...</div>
-        <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} signers</div>
+        <div style={{ color: colors.red, fontSize: '72px' }}>
+          {signaturesLeft === 0 ? 'You got the sigs!' : 'Recovery in progress...'}
+        </div>
+        {signaturesLeft > 0 && <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} signers</div>}
+        {signaturesLeft === 0 && <button onClick={onRecover}>Recover</button>}
       </div>
+
       <RecoveryLink>
         <div>{rescueLink}</div>
         <CopyButton onClick={onCopy}>
