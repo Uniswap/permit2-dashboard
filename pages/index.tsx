@@ -52,7 +52,8 @@ export function useTokenBalances(address: string | null | undefined, chainId: nu
         return (
           tokenChain === chainId &&
           // doesnt work with ETH rn :(
-          !isNativeCurrencyAddress(tokenChain, tokenBalance.token.address)
+          !isNativeCurrencyAddress(tokenChain, tokenBalance.token.address) &&
+          tokenBalance.quantity > 0
         )
       }),
     [data, chainId]
