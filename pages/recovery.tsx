@@ -8,7 +8,6 @@ import { useState } from 'react'
 import { Card, useTokenBalances, WhiteDot } from '.'
 import randomWords from 'random-words'
 import { RecoveryData } from '@/types'
-import Icon from '../public/icon.png'
 import Image from 'next/image'
 import { useEnsName } from 'wagmi'
 
@@ -115,6 +114,7 @@ function RecoveryAddressCard({ signer, index, isSigned }: { signer: string; inde
           alignSelf: 'flex-end',
           borderRadius: '100px 0 0 100px',
           color: 'white',
+          width: '1000px',
         }}
       >
         <Image src="/icon.png" height={115} width={115} alt="Flower icon" />

@@ -1,25 +1,20 @@
-import { formatNumber } from '@/format'
 import { colors } from '@/styles/colors'
 import { RecoveryData } from '@/types'
 import styled from '@emotion/styled'
 
-export function ConfirmStartRecovery({
-  backedUpTokens,
-  backedUpBalance,
+export function RescueStatus({
   recoveryData,
+  showModal,
+  setShowModal,
 }: {
-  backedUpTokens: string[]
-  backedUpBalance: number
   recoveryData: RecoveryData
+  showModal: boolean
+  setShowModal: (arg0: boolean) => void
 }) {
   const signaturesLeft = recoveryData.squad.length - Object.keys(recoveryData.signatures ?? {}).length
-  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : ''
 
   return (
     <LeftContainer>
-      <div>
-        {backedUpTokens.length} tokens worth ${formatNumber(backedUpBalance)} currently backed up.
-      </div>
       <div
         style={{
           alignItems: 'flex-start',
@@ -30,22 +25,24 @@ export function ConfirmStartRecovery({
         }}
       >
         <div style={{ color: colors.red, fontSize: '72px' }}>Recovery in progress...</div>
-        <div style={{ fontSize: '40px' }}>Waiting for {signaturesLeft} signers</div>
+        <div style={{ fontSize: '40px', paddingBottom: '5px' }}>Waiting for {signaturesLeft} signers</div>
+        <button
+          style={{
+            fontSize: '17px',
+            color: colors.blue400,
+            maxWidth: '435px',
+            cursor: 'pointer',
+            textOverflow: 'ellipsis',
+            fontFamily: 'Replica',
+          }}
+          onClick={() => setShowModal(!showModal)}
+        >
+          Approve Rescue
+        </button>
       </div>
-
-      <RecoveryLink>
-        {origin}/rescue/{recoveryData.identifier}
-      </RecoveryLink>
     </LeftContainer>
   )
 }
-
-const RecoveryLink = styled.div`
-  padding: 8px 12px;
-  background-color: ${colors.gray300};
-  color: white;
-  border-radius: 25px;
-`
 
 const LeftContainer = styled.div`
   padding: 20px 48px;
