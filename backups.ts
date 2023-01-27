@@ -49,7 +49,7 @@ type PalSignatureData = {
 }
 
 export interface RecoveryInfo {
-  backup: BackupInfo
+  tokens: string[]
   backupSignature: string
   owner: string
   recipient: string
@@ -95,7 +95,7 @@ export function getPalRecoverySignatureData(chain: number, info: RecoveryInfo): 
     return null
   }
 
-  const details = info.backup.tokens
+  const details = info.tokens
     .filter((token) => {
       info.balances[token] && info.balances[token].gt(0)
     })

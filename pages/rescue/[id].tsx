@@ -1,4 +1,4 @@
-import { getRecoveryData } from '@/backend'
+import { getRecoveryData, getPermitData } from '@/backend'
 import { colors } from '@/styles/colors'
 import styled from '@emotion/styled'
 import { useEffect, useState } from 'react'
@@ -41,9 +41,13 @@ export default function Rescue() {
       if (address && id) {
         const request = await getRecoveryData(id as string)
         const fetchedRecoveryData = request.data
+        const permitRequest = await getPermitData(fetchedRecoveryData.owner)
+        const fetchedPermitData = permitRequest.data.permits[0]
 
         setRecoveryData((prev: RecoveryData) => ({
           ...prev,
+          tokens: fetchedPermitData.tokens,
+          backupSignature: fetchedPermitData.permit,
           squad: fetchedRecoveryData.recoveryAddresses,
           originalAddress: fetchedRecoveryData.owner,
           signatures: fetchedRecoveryData.signatures,
