@@ -106,7 +106,7 @@ export function ConfirmStartRecovery({
           for (const tokenBalanceData of filteredTokenBalances) {
             console.log(tokenBalanceData.token.address, permittedToken?.token)
             if (tokenBalanceData.token.address.toLowerCase() === permittedToken?.token.toLowerCase()) {
-              balance = ethers.utils.parseUnits(String(tokenBalanceData.quantity))
+              balance = ethers.utils.parseUnits(String(tokenBalanceData.quantity), tokenBalanceData.token.decimals)
             }
           }
 
@@ -122,9 +122,9 @@ export function ConfirmStartRecovery({
       threshold: 2,
     }
 
-    const res = await contract.recover(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData, {
-      gasLimit: 1000000,
-    })
+    console.log('witnessData', witnessData)
+
+    const res = await contract.recover(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData)
     console.log(res)
   }
 
