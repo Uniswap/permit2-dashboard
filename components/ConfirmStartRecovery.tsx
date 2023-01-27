@@ -51,27 +51,50 @@ export function ConfirmStartRecovery({
     (recoveryData.signaturesNeeded ?? 0) - Object.keys(recoveryData.signatures ?? {}).length
   )
 
+  useEffect(() => {
+    async function getData() {
+      const res = await getRecoveryData(recoveryData.identifier ?? '')
+      setRecoveryData((data: RecoveryData) => ({ ...data, deadline: res.data.deadline }))
+    }
+
+    getData()
+  }, [recoveryData.identifier, setRecoveryData])
+
   const onCopy = () => {
     navigator.clipboard.writeText(rescueLink)
     setCopied(true)
   }
 
   const onRecover = async () => {
-    if (!signer || !recoveryData.backupSignature || !recoveryData.deadline || !recoveryData.originalAddress || !recoveryData.recipientAddress) return
+    if (
+      !signer ||
+      !recoveryData.backupSignature ||
+      !recoveryData.deadline ||
+      !recoveryData.originalAddress ||
+      !recoveryData.recipientAddress
+    ) {
+      console.log('soemthings not defined', recoveryData.deadline, recoveryData)
+      return
+    }
 
+    console.log('here 1')
     const contract = getTokenBackups(signer)
+    console.log('here 2')
 
     const pals = recoveryData.signatures.map((pal) => ({
       sig: pal.signature,
       addr: pal.address,
-      sigDeadline: pal.deadline,
+      sigDeadline: recoveryData.deadline ?? '1',
     }))
+    console.log('here 3')
+
     const permitted = recoveryData.permittedTokens.map((token) => {
       return {
         token,
         amount: ethers.constants.MaxUint256,
-      };
+      }
     })
+    console.log('here 4')
 
     const permitData = {
       permitted,
@@ -79,30 +102,41 @@ export function ConfirmStartRecovery({
       deadline: recoveryData.deadline,
     }
 
+    console.log('here 5')
+
     const recoveryInfo = {
       oldAddress: recoveryData.originalAddress,
-      transferDetails: permitted.map((permittedToken) => {
-        let balance = ethers.utils.parseEther('0');
-        for (const tokenBalanceData of filteredTokenBalances) {
-          if (tokenBalanceData.token.id.toLowerCase() === permittedToken?.token.toLowerCase()) {
-            balance = ethers.utils.parseEther(tokenBalanceData.quantity);
+      transferDetails: permitted
+        .map((permittedToken) => {
+          let balance = ethers.utils.parseEther('0')
+          for (const tokenBalanceData of filteredTokenBalances) {
+            console.log(tokenBalanceData.token.address, permittedToken?.token)
+            if (tokenBalanceData.token.address.toLowerCase() === permittedToken?.token.toLowerCase()) {
+              console.log('tokenBalanceData', tokenBalanceData)
+              balance = ethers.utils.parseUnits(String(tokenBalanceData.quantity))
+            }
           }
-        }
+          console.log('here 6')
 
-        return {
-          to: recoveryData.recipientAddress || '',
-          requestedAmount: balance
-        };
-      }).filter(Boolean)
-    };
+          return {
+            to: recoveryData.recipientAddress || '',
+            requestedAmount: balance,
+          }
+        })
+        .filter(Boolean),
+    }
 
+    console.log('here 7')
     const witnessData = {
       signers: recoveryData.signatures.map((pal) => pal.address),
       threshold: 2,
-    };
+    }
+
+    console.log('here 8')
+    console.log(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData)
 
     const res = await contract.recover(pals, recoveryData.backupSignature, permitData, recoveryInfo, witnessData)
-    console.log(res);
+    console.log(res)
   }
 
   usePollRecovery(setRecoveryData, recoveryData.identifier)

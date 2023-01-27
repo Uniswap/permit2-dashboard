@@ -49,7 +49,11 @@ export default function Recovery() {
         setRecoveryData={setRecoveryData}
         filteredTokenBalances={filteredTokenBalances}
       />
-      <Right step={step} signers={recoveryData.squad} signed={Object.keys(recoveryData.signatures)} />
+      <Right
+        step={step}
+        signers={recoveryData.squad}
+        signed={recoveryData.signatures.map(({ signature }) => signature)}
+      />
     </RecoveryContainer>
   )
 }
@@ -61,7 +65,7 @@ function Left({
   setRecoveryData,
   backedUpTokens,
   backedUpBalance,
-  filteredTokenBalances
+  filteredTokenBalances,
 }: {
   step: number
   setStep: (newStep: number) => void
@@ -240,6 +244,7 @@ function StartRecovery({
         ({
           ...prev,
           squad: permitData.recoveryAddresses,
+          backupSignature: permitData.permit,
           permittedTokens: permitData.tokens.map((token: string) => token.toLowerCase()),
           identifier: recoveryId,
           signaturesNeeded: permitData.recoveryScheme.m,
