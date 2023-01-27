@@ -72,6 +72,7 @@ function Left({
   if (step === 1) {
     return (
       <ConfirmStartRecovery
+        setRecoveryData={setRecoveryData}
         recoveryData={recoveryData}
         backedUpBalance={backedUpBalance}
         backedUpTokens={backedUpTokens}
