@@ -7,7 +7,6 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 
 import { colors } from '../styles/colors'
-import Dashboard from '@/components/Dashboard'
 
 const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID
 if (!alchemyId) {
