@@ -1,7 +1,5 @@
-import { permit_abi } from '@/abi/permit'
-import { ethers } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
-import { textChangeRangeNewSpan } from 'typescript'
+import { Permit2__factory } from '@/types/ethers-contracts'
+import { useEffect, useState } from 'react'
 import { useProvider, useAccount } from 'wagmi'
 
 type TokenAndSpender = {
@@ -17,7 +15,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function doStuff() {
-      const permit2Contract = new ethers.Contract(PERMIT2, new ethers.utils.Interface(permit_abi), provider)
+      const permit2Contract = Permit2__factory.connect(PERMIT2, provider);
       const filter = permit2Contract.filters.Permit(address)
       const events = await permit2Contract.queryFilter(filter)
       const tokensAndSpenders = events.map((event)=> {
