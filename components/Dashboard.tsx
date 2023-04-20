@@ -19,9 +19,9 @@ export default function Dashboard() {
   if (!spendersAndTokens) return <div>Loading...</div>
 
   return <div>{spendersAndTokens?.map(([spender, tokens]) => (
-    <div>
+    <div key={spender}>
       Spender: {spender} <br />
-      {tokens.map(token => <div>Token: {token}</div>)}
+      {tokens.map(token => <div key={token}>Token: {token}</div>)}
     </div>
   ))}</div>
 }
