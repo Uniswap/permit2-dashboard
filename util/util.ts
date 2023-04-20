@@ -1,16 +1,13 @@
 import { PERMIT2_ADDRESS } from '@uniswap/permit2-sdk'
-import { permit_abi } from '@/abi/permit'
+import { Permit2__factory } from '@/types/ethers-contracts'
 import { Provider } from '@wagmi/core'
 import { ethers } from 'ethers'
 
 type Token = string
 type Spender = string
 
-export async function getPermittedTokensAndSpenders(
-  provider: Provider,
-  address: string
-): Promise<[Spender, Token[]][]> {
-  const permit2Contract = new ethers.Contract(PERMIT2_ADDRESS, new ethers.utils.Interface(permit_abi), provider)
+export async function getPermittedTokensAndSpenders(provider: Provider, address: string): Promise<[Spender, Token[]][]> {
+  const permit2Contract = Permit2__factory.connect(PERMIT2_ADDRESS, provider);
   const filter = permit2Contract.filters.Permit(address)
   const events = await permit2Contract.queryFilter(filter)
 
