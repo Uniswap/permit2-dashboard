@@ -46,7 +46,7 @@ export async function useAllowances(provider: ethers.providers.Provider, owner: 
   });
 }
 
-export async function revoke(owner: ethers.Wallet, toRevoke: TokenSpender[]): Promise<ContractTransaction> {
+export async function revoke(owner: ethers.Signer, toRevoke: TokenSpender[]): Promise<ContractTransaction> {
   const permit2Contract = Permit2__factory.connect(PERMIT2, owner);
   return await permit2Contract.lockdown(toRevoke);
 }
