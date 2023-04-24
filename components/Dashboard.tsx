@@ -1,16 +1,17 @@
 import { useAsyncData } from '@/util/hooks'
-import { getPermittedTokensAndSpenders } from '@/util/util'
+import { getAllowancesForAddress } from '@/permit2'
 import { useCallback } from 'react'
 import { useProvider, useAccount } from 'wagmi'
+import moment from 'moment';
 
 export default function Dashboard() {
   const provider = useProvider()
   const { address } = useAccount()
 
   const fetchData = useCallback(() => {
-    if (!address) return 
+    if (!address) return
 
-    return getPermittedTokensAndSpenders(provider, address)
+    return getAllowancesForAddress(provider, address)
   }, [provider, address])
 
 
@@ -18,10 +19,16 @@ export default function Dashboard() {
 
   if (!spendersAndTokens) return <div>Loading...</div>
 
-  return <div>{spendersAndTokens?.map(([spender, tokens]) => (
+  return <div>{Object.keys(spendersAndTokens)?.map((spender) => (
     <div key={spender}>
       Spender: {spender} <br />
-      {tokens.map(token => <div key={token}>Token: {token}</div>)}
+      {Object.entries(spendersAndTokens[spender]).map(([token, { amount, expiration }]) => (
+        <div key={token}>
+          <div>Token: {token}</div>
+          <div>amount: {amount.toString()}</div>
+          <div>expiration: {moment(expiration * 1000).fromNow()}</div>
+        </div>
+      ))}
     </div>
   ))}</div>
 }
