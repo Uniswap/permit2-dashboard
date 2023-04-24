@@ -1,8 +1,9 @@
 import { useAsyncData } from '@/util/hooks'
 import { revoke } from '@/permit2'
-import { getPermittedTokensAndSpenders } from '@/util/util'
 import { useCallback } from 'react'
 import { useProvider, useAccount, useSigner } from 'wagmi'
+import { getAllowancesForAddress } from '@/permit2'
+import moment from 'moment';
 
 export default function Dashboard() {
   const provider = useProvider()
@@ -12,7 +13,7 @@ export default function Dashboard() {
   const fetchData = useCallback(() => {
     if (!address) return
 
-    return getPermittedTokensAndSpenders(provider, address)
+    return getAllowancesForAddress(provider, address)
   }, [provider, address])
 
   const { data: spendersAndTokens } = useAsyncData(fetchData)
@@ -27,13 +28,22 @@ export default function Dashboard() {
     await revoke(signer, tokens.map((token) => ({ spender, token })))
   }
 
-  return <div>{spendersAndTokens?.map(([spender, tokens]) => (
+  return <div>{Object.keys(spendersAndTokens)?.map((spender) => (
     <div key={spender}>
       Spender: {spender} <br />
-      {tokens.map(token => <div key={token}>Token: {token}</div>)}
-      <button onClick={() => onRevoke(spender, tokens)}>
-        Revoke
-      </button>
+      {Object.entries(spendersAndTokens[spender]).map(([token, { amount, expiration }]) => (
+        <div key={token}>
+          <div>Token: {token}</div>
+          <div>amount: {amount.toString()}</div>
+          <div>expiration: {moment(expiration * 1000).fromNow()}</div>
+
+          {signer && amount.gt(0) && expiration > Date.now() &&
+            <button onClick={() => onRevoke(spender, [token])}>
+              Revoke
+            </button>
+          }
+        </div>
+      ))}
     </div>
   ))}</div>
 }

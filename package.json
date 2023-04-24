@@ -29,6 +29,7 @@
     "ethers": "^5.7.2",
     "ethers-multicall": "^0.2.3",
     "graphql": "^16.6.0",
+    "moment": "^2.29.4",
     "next": "13.1.5",
     "random-words": "^1.2.1",
     "react": "18.2.0",
