@@ -23,10 +23,10 @@ export default function Dashboard() {
     <div key={spender}>
       Spender: {spender} <br />
       {Object.entries(spendersAndTokens[spender]).map(([token, { amount, expiration }]) => (
-        <div>
-          <div key={token}>Token: {token}</div>
-          <div key={amount.toString()}>amount: {amount.toString()}</div>
-          <div key={expiration}>expiration: {moment(expiration * 1000).fromNow()}</div>
+        <div key={token}>
+          <div>Token: {token}</div>
+          <div>amount: {amount.toString()}</div>
+          <div>expiration: {moment(expiration * 1000).fromNow()}</div>
         </div>
       ))}
     </div>

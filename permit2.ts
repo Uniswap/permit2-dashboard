@@ -52,14 +52,16 @@ export async function getAllowances(provider: Provider, address: string, tokenSp
 
   const results = await multicallProvider.all(calls)
 
-  return results.reduce((allowances, [amount, expiration], i) => {
+  const allowances: Allowances = {};
+  for (let i = 0; i < tokenSpenders.length; i++) {
     const { token, spender } = tokenSpenders[i]
+    const [amount, expiration] = results[i]
     if (!allowances[spender]) {
       allowances[spender] = {}
     }
     allowances[spender][token] = { amount, expiration }
-    return allowances
-  }, {})
+  }
+  return allowances
 }
 
 // gets all tokens and spenders and amounts currently permitted
